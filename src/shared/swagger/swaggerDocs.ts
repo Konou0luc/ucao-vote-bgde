@@ -44,9 +44,10 @@ export function buildSwaggerIndexHtml(
   return CDN_HTML_PATCHES.reduce((html, [re, repl]) => html.replace(re, repl), raw);
 }
 
-export function swaggerUiInitMiddleware(): RequestHandler {
+/** Init `swagger-ui-init.js` (serve[0]) + fichiers `swagger-ui-dist` (serve[1]). Les deux sont requis. */
+export function swaggerUiServeMiddlewares(): RequestHandler[] {
   const sui = getSwaggerUi();
-  return sui.serve[0];
+  return [...sui.serve];
 }
 
 export function swaggerUiIndexHtmlHandler(html: string): RequestHandler {

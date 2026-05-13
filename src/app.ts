@@ -26,7 +26,7 @@ import { errorHandler } from "./shared/middleware/errorHandler";
 import {
   buildSwaggerIndexHtml,
   swaggerUiIndexHtmlHandler,
-  swaggerUiInitMiddleware,
+  swaggerUiServeMiddlewares,
 } from "./shared/swagger/swaggerDocs";
 
 const swaggerIndexHtml = buildSwaggerIndexHtml(swaggerDocument, {
@@ -81,7 +81,7 @@ app.get("/api/docs.json", (_req, res) => {
 app.use(
   "/api/docs",
   docsRateLimiter,
-  swaggerUiInitMiddleware(),
+  ...swaggerUiServeMiddlewares(),
   swaggerUiIndexHtmlHandler(swaggerIndexHtml),
 );
 
