@@ -2,6 +2,7 @@ import express from "express";
 import pinoHttp from "pino-http";
 import swaggerUi from "swagger-ui-express";
 import { logger } from "./infrastructure/logger/logger";
+import { prisma } from "./infrastructure/prisma/client";
 import { swaggerDocument } from "./docs/swagger";
 import { healthRouter } from "./modules/health/routes/health.routes";
 import { otpRouter } from "./modules/otp/routes/otp.routes";
@@ -29,6 +30,34 @@ app.use(pinoHttp({ logger }));
 app.use(helmetMiddleware);
 app.use(corsMiddleware);
 app.use(express.json());
+
+app.get("/", async (_req, res) => {
+  res.setHeader("Cache-Control", "no-store");
+  let database: "ok" | "error" = "error";
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    database = "ok";
+  } catch {
+    database = "error";
+  }
+  res.status(200).json({
+    service: "VoteGBDE API",
+    status: "running",
+    environment: process.env.NODE_ENV ?? "unknown",
+    timestamp: new Date().toISOString(),
+    uptimeSeconds: Math.round(process.uptime() * 1000) / 1000,
+    database,
+    message:
+      database === "ok"
+        ? "API opérationnelle, base joignable. Santé : GET /api/health · Documentation Swagger : /api/docs"
+        : "API démarrée mais la base de données ne répond pas. Vérifiez DATABASE_URL ou NEON_DATABASE_URL sur l'hébergeur.",
+    links: {
+      health: "/api/health",
+      docs: "/api/docs",
+      openApiJson: "/api/docs.json",
+    },
+  });
+});
 
 app.get("/api/docs.json", (_req, res) => {
   res.json(swaggerDocument);
