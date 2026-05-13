@@ -1,3 +1,4 @@
+import path from "node:path";
 import express from "express";
 import pinoHttp from "pino-http";
 import { logger } from "./infrastructure/logger/logger";
@@ -44,6 +45,7 @@ app.use(pinoHttp({ logger }));
 app.use(helmetMiddleware);
 app.use(corsMiddleware);
 app.use(express.json());
+app.use(express.static(path.join(process.cwd(), "public"), { index: false }));
 
 app.get("/", async (_req, res) => {
   res.setHeader("Cache-Control", "no-store");

@@ -16,6 +16,7 @@ type SwaggerUiWithGenerate = typeof swaggerUi & {
       explorer?: boolean;
       swaggerOptions?: Record<string, unknown>;
       customSiteTitle?: string;
+      customfavIcon?: string;
     },
   ) => string;
   serve: RequestHandler[];
@@ -38,6 +39,7 @@ export function buildSwaggerIndexHtml(
     explorer: options.explorer ?? true,
     swaggerOptions: options.swaggerOptions ?? {},
     customSiteTitle: options.title,
+    customfavIcon: "/logo.png",
   });
   return CDN_HTML_PATCHES.reduce((html, [re, repl]) => html.replace(re, repl), raw);
 }
