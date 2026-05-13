@@ -9,4 +9,16 @@ node_modules
 coverage
 *.log
 npm-debug.log*
+node_modules
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+/dist
+/src/generated/prisma
+coverage
+*.log
+npm-debug.log*
 .DS_Store
+.agents/
