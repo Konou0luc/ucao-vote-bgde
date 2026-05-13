@@ -94,3 +94,5 @@ app.use("/api", candidateListAdminRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
+
+export default app;
