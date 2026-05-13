@@ -1,0 +1,160 @@
+Le projet VoteBGDE n’est pas encore terminé.
+
+Nous allons maintenant développer un deuxième backend séparé : l’API universitaire officielle de l’UCAO-UUT.
+
+IMPORTANT :
+Cette API est indépendante du système de vote.
+
+Architecture globale du projet :
+
+1. API Universitaire
+Responsable de :
+- étudiants
+- inscriptions
+- filières
+- niveaux
+- statut académique
+- vérification des matricules
+
+2. API VoteBGDE
+Responsable de :
+- OTP
+- votes
+- participation
+- scrutins
+- résultats
+- administration
+
+Le système VoteBGDE devra consommer l’API universitaire via HTTP/API REST.
+
+OBJECTIF DU NOUVEAU PROJET
+
+Développer une API universitaire professionnelle avec :
+- Node.js
+- TypeScript
+- Express
+- Prisma ORM
+- PostgreSQL
+- Swagger
+- Clean Architecture
+
+Architecture attendue :
+
+src/
+ ├── config
+ ├── docs
+ ├── infrastructure
+ ├── modules
+ │    ├── students
+ │    ├── faculties
+ │    ├── departments
+ │    ├── levels
+ │    ├── enrollments
+ │    ├── auth
+ │    └── admins
+
+Chaque module doit respecter :
+- controller
+- service/usecase
+- repository
+- dto
+- validator
+- interfaces
+- routes
+
+FONCTIONNALITÉS PRINCIPALES
+
+STUDENTS
+- création étudiant
+- recherche par matricule
+- recherche par email
+- activation/désactivation
+- informations académiques
+- pagination
+- filtres
+
+ENROLLMENTS
+- gestion des inscriptions académiques
+- année universitaire
+- statut inscription
+- étudiant actif/inactif
+
+FACULTIES / DEPARTMENTS
+- gestion des filières et départements
+
+AUTH
+- login admin
+- JWT
+- refresh token
+- rôles admin
+- guards
+- permissions
+
+API PUBLIQUE
+Créer un endpoint public sécurisé :
+
+GET /students/verify/:matricule
+
+Réponse attendue :
+- étudiant existe ou non
+- nom
+- prénom
+- filière
+- niveau
+- statut actif
+
+Cette route sera utilisée plus tard par VoteBGDE.
+
+IMPORTANT
+- préparer le projet pour une future consommation externe ;
+- architecture scalable ;
+- DTO stricts ;
+- validation forte ;
+- gestion centralisée des erreurs ;
+- Swagger complet ;
+- logs propres ;
+- pagination ;
+- Prisma indexes ;
+- sécurité Express ;
+- rate limiting ;
+- helmet ;
+- CORS ;
+- architecture maintenable.
+
+BASE DE DONNÉES
+
+Utiliser PostgreSQL local.
+
+Nom DB :
+ucao_university_db
+
+ORM :
+Prisma
+
+SEED
+
+Créer un seed réaliste contenant :
+- plusieurs étudiants ;
+- plusieurs filières ;
+- plusieurs niveaux ;
+- plusieurs départements ;
+- données réalistes UCAO-UUT.
+
+DOCUMENTATION
+
+Documenter :
+- architecture globale ;
+- relation avec VoteBGDE ;
+- endpoints publics ;
+- sécurité ;
+- future intégration microservices/API.
+
+QUALITÉ
+
+- architecture clean réelle ;
+- pas de logique métier dans controllers ;
+- repository pattern ;
+- services découplés ;
+- Swagger fonctionnel ;
+- Prisma migrations propres ;
+- code scalable et maintenable.

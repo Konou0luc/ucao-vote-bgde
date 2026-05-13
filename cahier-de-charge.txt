@@ -1,0 +1,257 @@
+UCAO-UUT
+Bureau Général des Étudiants — Système de Vote Numérique
+Proposition technique & fonctionnelle — Version améliorée
+1. Contexte et objectif
+
+L'UCAO-UUT (Université Catholique de l'Afrique de l'Ouest — Unité Universitaire de Togo) organise chaque année des élections pour le Bureau Général des Étudiants (BGDE). Aujourd'hui, ce processus repose entièrement sur un vote physique à bulletins secrets.
+
+Dans le cadre d'une démarche de modernisation, l'université souhaite digitaliser ce processus afin de le rendre plus accessible, plus sécurisé et plus transparent pour l'ensemble de la communauté étudiante.
+
+Ce document présente la proposition technique élaborée par l'équipe en charge de la digitalisation, couvrant l'architecture du système, les règles de sécurité, le parcours utilisateur, les garanties de confidentialité ainsi que les améliorations techniques ajoutées pour renforcer la robustesse du système.
+
+2. Règles fondamentales du système
+
+Le système de vote numérique repose sur plusieurs règles fondamentales non négociables définies pour garantir l'intégrité et la légitimité des élections.
+
+#	Règle	Objectif
+1	Seuls les étudiants inscrits peuvent voter	Limiter le vote aux personnes légitimes
+2	Chaque étudiant ne vote qu'une seule fois	Empêcher la fraude par double vote
+3	L'identité est vérifiée via le matricule	Authentification par identifiant officiel
+4	Un OTP est envoyé par email pour confirmer l'identité	Double vérification (2FA)
+5	Le choix de vote reste strictement confidentiel	Garantir le secret du bulletin
+6	Le système se verrouille hors de la plage horaire officielle	Contrôle de la fenêtre électorale
+7	Chaque OTP est lié à une session temporaire	Réduction des risques de partage de code
+8	Toutes les actions critiques sont journalisées	Audit et traçabilité renforcés
+3. Parcours de vote — Étape par étape
+Étape 1 — Saisie du matricule
+
+L'étudiant accède à la plateforme de vote et saisit son numéro matricule. Le système recherche ce matricule dans la base de données de l'université.
+
+Si le matricule est reconnu : les informations de l'étudiant s'affichent pour confirmation.
+Si le matricule est inconnu ou invalide : un message d'erreur s'affiche.
+Si l'étudiant a déjà voté : toute nouvelle tentative est bloquée.
+Étape 2 — Vérification des informations
+
+Le système affiche les informations enregistrées :
+
+Nom
+Prénom
+Filière
+Niveau
+
+L'étudiant confirme qu'il s'agit bien de lui avant de continuer.
+
+Étape 3 — Saisie de l'adresse email
+
+L'étudiant saisit une adresse email valide afin de recevoir son code OTP.
+
+Le système :
+
+vérifie le format de l'email ;
+refuse les formats invalides ;
+accepte toute adresse email valide.
+
+Un mécanisme de limitation empêche l'envoi abusif d'OTP pour un même matricule.
+
+Étape 4 — Envoi et validation du code OTP
+
+Un code OTP à 6 chiffres est envoyé automatiquement par email.
+
+Règles de sécurité OTP :
+validité limitée à 10 minutes ;
+maximum 3 tentatives ;
+OTP à usage unique ;
+possibilité de renvoyer un OTP ;
+OTP associé à une session temporaire pour limiter les fraudes.
+Cas d'erreur gérés :
+OTP expiré ;
+OTP incorrect ;
+dépassement du nombre de tentatives ;
+email non accessible.
+
+En cas de problème exceptionnel d'email, un mécanisme administratif sécurisé pourra être utilisé comme solution de secours.
+
+Étape 5 — Vote
+
+Une fois l'OTP validé :
+
+les listes candidates s'affichent ;
+l'étudiant sélectionne sa liste ;
+il confirme son choix.
+
+Le vote :
+
+est définitif ;
+est enregistré anonymement ;
+génère un identifiant anonyme de vérification interne (hash d'audit).
+Étape 6 — Confirmation
+
+Le système :
+
+confirme l'enregistrement du vote ;
+marque le matricule comme « ayant voté » ;
+invalide immédiatement l'OTP utilisé ;
+journalise l'opération dans le système d'audit.
+4. Architecture technique du système
+
+L'architecture du système est conçue pour séparer rigoureusement l'identité de l'étudiant de son choix de vote.
+
+Composant	Description	Rôle
+Base de données étudiants	Matricule, identité, filière, niveau	Authentification
+Table des votes	Vote anonyme + identifiant hash	Stockage des suffrages
+Table de participation	Matricule + statut de vote	Anti double vote
+Service OTP	Envoi et validation OTP	Authentification 2FA
+Interface étudiant	Application web responsive	Vote étudiant
+Interface admin	Dashboard sécurisé	Supervision
+Journal d'audit	Logs des actions critiques	Traçabilité
+Service de monitoring	Surveillance des erreurs serveur	Détection incidents
+5. Mesures de sécurité et confidentialité
+5.1 Séparation stricte des données
+
+Le système interdit toute relation directe entre :
+
+l'identité de l'étudiant ;
+son choix de vote.
+
+Aucune jointure technique n'est possible entre les tables de participation et de votes.
+
+5.2 Authentification renforcée (2FA)
+
+L'authentification repose sur :
+
+le matricule ;
+un OTP par email ;
+une session temporaire sécurisée.
+
+Même avec connaissance du matricule, il est impossible de voter sans accès à l'email.
+
+5.3 Protection contre les fraudes
+
+Le système applique :
+
+limitation des requêtes OTP ;
+limitation des tentatives ;
+blocage des sessions suspectes ;
+protection contre les doubles votes ;
+journalisation des tentatives échouées.
+5.4 Blocages automatiques
+Situation	Action système
+3 OTP incorrects	Blocage session
+OTP expiré	Nouveau code requis
+Vote déjà effectué	Accès refusé
+Vote hors horaire	Plateforme verrouillée
+5.5 Journal d'audit sécurisé
+
+Toutes les actions critiques sont enregistrées :
+
+connexions admin ;
+génération OTP ;
+validation OTP ;
+confirmations de vote ;
+erreurs système.
+
+Le choix du vote n'est jamais enregistré dans les logs.
+
+5.6 Protection technique avancée
+
+Le système utilise également :
+
+HTTPS/TLS ;
+protection CORS ;
+validation et sanitisation des entrées ;
+variables sensibles dans .env ;
+limitation de débit (Rate Limiting) ;
+hachage sécurisé des mots de passe et OTP.
+6. Performance, stabilité et continuité
+
+Afin de garantir la disponibilité du système pendant le scrutin :
+
+optimisation des requêtes base de données ;
+indexation des tables critiques ;
+monitoring serveur ;
+sauvegardes automatiques ;
+gestion des erreurs utilisateur ;
+indicateurs de chargement côté frontend.
+
+Le système doit supporter plusieurs connexions simultanées pendant les heures de forte participation.
+
+7. Dépouillement et affichage des résultats
+
+À la clôture du scrutin :
+
+le dépouillement est automatique ;
+les résultats sont calculés en temps réel ;
+les pourcentages sont affichés ;
+le taux de participation global est généré ;
+un rapport PDF officiel est produit automatiquement.
+
+En cas d'égalité, l'administration applique les procédures internes de l'université.
+
+8. Interface d'administration
+8.1 Accès sécurisé
+
+L'accès admin repose sur :
+
+URL dédiée ;
+email + mot de passe fort ;
+authentification sécurisée ;
+journalisation des connexions.
+8.2 Rôles administrateurs
+Rôle	Permissions
+Super Administrateur	Gestion complète du système
+Administrateur Standard	Supervision et consultation
+
+Même les administrateurs ne peuvent jamais accéder au choix individuel d'un étudiant.
+
+8.3 Fonctionnalités du dashboard
+Fonctionnalité	Disponibilité
+Gestion des listes candidates	Avant scrutin
+Configuration du scrutin	Avant scrutin
+Suivi participation	Pendant scrutin
+Résultats automatiques	Après clôture
+Rapport PDF	Après clôture
+Consultation logs	Super Admin
+9. Tests et assurance qualité
+
+Avant mise en production :
+
+tests unitaires backend ;
+tests des endpoints API ;
+tests OTP ;
+tests de montée en charge ;
+tests utilisateurs ;
+simulation complète d'élection.
+
+Les composants critiques seront validés avant déploiement final.
+
+10. Avantages du système numérique
+Aspect	Vote physique	Vote numérique
+Accessibilité	Présence obligatoire	Vote en ligne
+Sécurité	Vérification manuelle	2FA automatisé
+Confidentialité	Papier	Isolation technique
+Dépouillement	Manuel	Automatique
+Traçabilité	Papier	Logs sécurisés
+Résultats	Lents	Instantanés
+Supervision	Physique	Temps réel
+11. Récapitulatif
+Question	Réponse
+Qui peut voter ?	Étudiants inscrits
+Authentification ?	Matricule + OTP
+Double vote possible ?	Non
+Vote secret ?	Oui
+Vote quand ?	Pendant la période officielle
+Qui voit les résultats ?	Après clôture uniquement
+Qui supervise ?	Administration UCAO-UUT
+12. Conclusion
+
+Le système de vote numérique proposé vise à moderniser le processus électoral du BGDE tout en garantissant :
+
+sécurité ;
+confidentialité ;
+transparence ;
+fiabilité ;
+accessibilité.
+
+Grâce aux améliorations techniques ajoutées, le système bénéficie d'une architecture robuste capable de répondre aux exigences d'une élection universitaire moderne et sécurisée.
+
+Document préparé par l'équipe de digitalisation — UCAO-UUT

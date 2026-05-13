@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ScrutinStatus {
+  DRAFT
+  SCHEDULED
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum StudentLevel {
+  L1
+  L2
+  L3
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  STANDARD_ADMIN
+}
+
+enum OtpChallengeStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+  LOCKED
+  USED
+}
+
+model Student {
+  id             String          @id @default(cuid())
+  matricule      String          @unique @db.VarChar(32)
+  firstName      String          @db.VarChar(120)
+  lastName       String          @db.VarChar(120)
+  email          String?         @db.VarChar(255)
+  department     String          @db.VarChar(120)
+  level          StudentLevel
+  isEligible     Boolean         @default(true)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  participations Participation[]
+  otpChallenges  OtpChallenge[]
+
+  @@index([matricule])
+  @@index([department, level])
+  @@map("students")
+}
+
+model Scrutin {
+  id                 String          @id @default(cuid())
+  title              String          @db.VarChar(180)
+  description        String?
+  startsAt           DateTime
+  endsAt             DateTime
+  status             ScrutinStatus   @default(DRAFT)
+  resultsPublishedAt DateTime?
+  createdByAdminId   String
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  candidateLists     CandidateList[]
+  participations     Participation[]
+  votes              Vote[]
+  otpChallenges      OtpChallenge[]
+
+  @@index([status, startsAt, endsAt])
+  @@index([createdByAdminId])
+  @@map("scrutins")
+}
+
+model CandidateList {
+  id          String   @id @default(cuid())
+  scrutinId   String
+  name        String   @db.VarChar(120)
+  slogan      String?  @db.VarChar(240)
+  description String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  scrutin     Scrutin  @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
+  votes       Vote[]
+
+  @@unique([scrutinId, name])
+  @@unique([scrutinId, order])
+  @@index([scrutinId, isActive])
+  @@map("candidate_lists")
+}
+
+model Participation {
+  id               String    @id @default(cuid())
+  studentId        String
+  scrutinId        String
+  hasVoted         Boolean   @default(false)
+  votedAt          DateTime?
+  participationRef String    @unique @db.VarChar(128)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  student          Student   @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  scrutin          Scrutin   @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, scrutinId])
+  @@index([scrutinId, hasVoted])
+  @@index([studentId])
+  @@map("participations")
+}
+
+model OtpChallenge {
+  id           String             @id @default(cuid())
+  studentId    String
+  scrutinId    String
+  email        String             @db.VarChar(255)
+  otpHash      String             @db.VarChar(255)
+  attempts     Int                @default(0)
+  maxAttempts  Int                @default(3)
+  status       OtpChallengeStatus @default(PENDING)
+  sessionToken String             @unique @db.VarChar(128)
+  expiresAt    DateTime
+  verifiedAt   DateTime?
+  consumedAt   DateTime?
+  lastSentAt   DateTime           @default(now())
+  resendCount  Int                @default(0)
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  student      Student            @relation(fields: [studentId], references: [id], onDelete: Restrict)
+  scrutin      Scrutin            @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, scrutinId, status])
+  @@index([sessionToken, expiresAt])
+  @@index([email])
+  @@map("otp_challenges")
+}
+
+model Vote {
+  id               String        @id @default(cuid())
+  scrutinId        String
+  candidateListId  String
+  participationRef String        @unique @db.VarChar(128)
+  auditHash        String        @unique @db.VarChar(255)
+  castAt           DateTime      @default(now())
+  scrutin          Scrutin       @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
+  candidateList    CandidateList @relation(fields: [candidateListId], references: [id], onDelete: Restrict)
+
+  @@index([scrutinId, candidateListId])
+  @@index([castAt])
+  @@map("votes")
+}
+
+model Admin {
+  id                 String               @id @default(cuid())
+  email              String               @unique @db.VarChar(255)
+  passwordHash       String               @db.VarChar(255)
+  role               AdminRole            @default(STANDARD_ADMIN)
+  isActive           Boolean              @default(true)
+  lastLoginAt        DateTime?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  auditLogs          AuditLog[]
+  adminOtpChallenges AdminOtpChallenge[]
+
+  @@index([role, isActive])
+  @@map("admins")
+}
+
+model AdminOtpChallenge {
+  id           String             @id @default(cuid())
+  adminId      String
+  otpHash      String             @db.VarChar(255)
+  attempts     Int                @default(0)
+  maxAttempts  Int                @default(3)
+  status       OtpChallengeStatus @default(PENDING)
+  sessionToken String             @unique @db.VarChar(128)
+  expiresAt    DateTime
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  admin        Admin              @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([adminId, status])
+  @@index([sessionToken, expiresAt])
+  @@map("admin_otp_challenges")
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  adminId   String?
+  action    String   @db.VarChar(120)
+  entity    String   @db.VarChar(80)
+  entityId  String?  @db.VarChar(80)
+  severity  String   @db.VarChar(20)
+  ipAddress String?  @db.VarChar(64)
+  userAgent String?
+  metadata  Json?
+  createdAt DateTime @default(now())
+  admin     Admin?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
+
+  @@index([action, createdAt])
+  @@index([entity, entityId])
+  @@index([severity, createdAt])
+  @@map("audit_logs")
+}
