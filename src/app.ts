@@ -1,6 +1,5 @@
 import express from "express";
 import pinoHttp from "pino-http";
-import swaggerUi from "swagger-ui-express";
 import { logger } from "./infrastructure/logger/logger";
 import { prisma } from "./infrastructure/prisma/client";
 import { swaggerDocument } from "./docs/swagger";
@@ -23,6 +22,19 @@ import {
 } from "./shared/middleware/security";
 import { notFoundHandler } from "./shared/middleware/notFoundHandler";
 import { errorHandler } from "./shared/middleware/errorHandler";
+import {
+  buildSwaggerIndexHtml,
+  swaggerUiIndexHtmlHandler,
+  swaggerUiInitMiddleware,
+} from "./shared/swagger/swaggerDocs";
+
+const swaggerIndexHtml = buildSwaggerIndexHtml(swaggerDocument, {
+  title: "VoteGBDE API",
+  swaggerOptions: {
+    docExpansion: "list",
+    filter: true,
+  },
+});
 
 export const app = express();
 
@@ -67,14 +79,8 @@ app.get("/api/docs.json", (_req, res) => {
 app.use(
   "/api/docs",
   docsRateLimiter,
-  swaggerUi.serve,
-  swaggerUi.setup(swaggerDocument, {
-    explorer: true,
-    swaggerOptions: {
-      docExpansion: "list",
-      filter: true,
-    },
-  }),
+  swaggerUiInitMiddleware(),
+  swaggerUiIndexHtmlHandler(swaggerIndexHtml),
 );
 
 app.use("/api/health", publicReadRateLimiter);
