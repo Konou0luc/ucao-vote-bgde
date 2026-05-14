@@ -22,3 +22,4 @@ coverage
 npm-debug.log*
 .DS_Store
 .agents/
+frontend/
