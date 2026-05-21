@@ -5,6 +5,9 @@ const scrutinStatusEnum = z.enum(["DRAFT", "SCHEDULED", "OPEN", "CLOSED", "ARCHI
 export const createScrutinSchema = z.object({
   title: z.string().trim().min(3).max(180),
   description: z.string().trim().max(1500).optional(),
+  bannerUrl: z.string().url().max(255).optional(),
+  targetDepartment: z.string().trim().max(120).optional(),
+  targetLevel: z.enum(["L1", "L2", "L3"]).optional(),
   startsAt: z.string().datetime(),
   endsAt: z.string().datetime(),
   status: scrutinStatusEnum.optional(),
@@ -14,6 +17,9 @@ export const updateScrutinSchema = z
   .object({
     title: z.string().trim().min(3).max(180).optional(),
     description: z.string().trim().max(1500).optional(),
+    bannerUrl: z.string().url().max(255).optional(),
+    targetDepartment: z.string().trim().max(120).optional(),
+    targetLevel: z.enum(["L1", "L2", "L3"]).optional(),
     startsAt: z.string().datetime().optional(),
     endsAt: z.string().datetime().optional(),
     status: scrutinStatusEnum.optional(),

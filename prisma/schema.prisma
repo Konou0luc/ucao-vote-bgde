@@ -59,6 +59,9 @@ model Scrutin {
   id                 String          @id @default(cuid())
   title              String          @db.VarChar(180)
   description        String?
+  bannerUrl          String?         @db.VarChar(255)
+  targetDepartment   String?         @db.VarChar(120)
+  targetLevel        StudentLevel?
   startsAt           DateTime
   endsAt             DateTime
   status             ScrutinStatus   @default(DRAFT)
@@ -73,6 +76,7 @@ model Scrutin {
 
   @@index([status, startsAt, endsAt])
   @@index([createdByAdminId])
+  @@index([targetDepartment, targetLevel])
   @@map("scrutins")
 }
 

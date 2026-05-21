@@ -1,4 +1,4 @@
-import { ScrutinStatus } from "../../../generated/prisma";
+import { ScrutinStatus, StudentLevel } from "../../../generated/prisma";
 import { AppError } from "../../../shared/errors/AppError";
 import type { AdminJwtPayload } from "../../auth/interfaces/auth.types";
 import type { CreateScrutinRequestDto, UpdateScrutinRequestDto } from "../dto/scrutin.admin.dto";
@@ -25,6 +25,9 @@ export class ScrutinAdminService {
     const scrutin = await this.repository.create({
       title: payload.title,
       description: payload.description,
+      bannerUrl: payload.bannerUrl,
+      targetDepartment: payload.targetDepartment,
+      targetLevel: payload.targetLevel as StudentLevel,
       startsAt,
       endsAt,
       status: payload.status ?? ScrutinStatus.DRAFT,
@@ -83,6 +86,9 @@ export class ScrutinAdminService {
     const updated = await this.repository.update(id, {
       title: payload.title,
       description: payload.description,
+      bannerUrl: payload.bannerUrl,
+      targetDepartment: payload.targetDepartment,
+      targetLevel: payload.targetLevel as StudentLevel,
       startsAt,
       endsAt,
       status: payload.status,
@@ -255,8 +261,6 @@ export class ScrutinAdminService {
     return {
       scrutinId,
       title: scrutin.title,
-      status: scrutin.status,
-      resultsPublishedAt: scrutin.resultsPublishedAt,
       totalVotes,
       results,
     };
