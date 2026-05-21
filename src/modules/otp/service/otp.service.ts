@@ -98,7 +98,7 @@ export class OtpService {
     });
 
     await mailer.sendMail({
-      from: env.MAIL_FROM,
+      from: `"VoteBGDE" <${env.MAIL_FROM}>`,
       to: payload.email,
       subject: "Code OTP - Vote BGDE",
       text: `Votre code OTP est ${otp}. Il expire dans ${OTP_EXPIRES_IN_MINUTES} minutes.`,

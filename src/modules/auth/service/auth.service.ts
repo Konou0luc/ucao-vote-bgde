@@ -73,7 +73,7 @@ export class AuthService {
     });
 
     await mailer.sendMail({
-      from: env.MAIL_FROM,
+      from: `"VoteBGDE" <${env.MAIL_FROM}>`,
       to: admin.email,
       subject: "Code OTP - Connexion administration VoteBGDE",
       text: `Votre code de connexion est ${otp}. Il expire dans ${OTP_EXPIRES_IN_MINUTES} minutes. Si vous n'etes pas a l'origine de cette demande, ignorez cet email.`,
