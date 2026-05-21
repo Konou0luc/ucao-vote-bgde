@@ -17,6 +17,9 @@ export class CandidateListService {
       name: payload.name,
       slogan: payload.slogan,
       description: payload.description,
+      members: payload.members as any,
+      actionPlan: payload.actionPlan as any,
+      videoUrl: payload.videoUrl,
       order: payload.order,
       isActive: true,
     });
@@ -42,7 +45,7 @@ export class CandidateListService {
       throw new AppError("Liste candidate introuvable", 404);
     }
 
-    const updated = await this.repository.update(id, payload);
+    const updated = await this.repository.update(id, payload as any);
 
     await this.repository.createAuditLog({
       adminId: admin.sub,

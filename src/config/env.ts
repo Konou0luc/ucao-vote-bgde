@@ -25,6 +25,8 @@ const envSchema = z.object({
   JWT_REFRESH_EXPIRES_IN: z.string().default("7d"),
   ADMIN_EMAIL: z.string().email(),
   ADMIN_PASSWORD_HASH: z.string().min(1),
+  SECOND_ADMIN_EMAIL: z.string().email().optional(),
+  SECOND_ADMIN_PASSWORD_HASH: z.string().min(1).optional(),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),
@@ -34,6 +36,9 @@ const envSchema = z.object({
   RATE_LIMIT_VOTE_MAX: z.coerce.number().int().positive().default(300),
   RATE_LIMIT_ADMIN_MAX: z.coerce.number().int().positive().default(300),
   NEON_DATABASE_URL: z.string().optional(),
+  CLOUDINARY_CLOUD_NAME: z.string().optional(),
+  CLOUDINARY_API_KEY: z.string().optional(),
+  CLOUDINARY_API_SECRET: z.string().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

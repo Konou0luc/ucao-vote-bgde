@@ -16,7 +16,11 @@ export class CandidateListController {
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const item = await this.service.create(req.body as CreateCandidateListRequestDto, getAdmin(req));
+      const payload = req.body as CreateCandidateListRequestDto;
+      if (req.file) {
+        payload.videoUrl = (req.file as any).path;
+      }
+      const item = await this.service.create(payload, getAdmin(req));
       res.status(201).json({ success: true, message: "Liste candidate creee", data: item });
     } catch (error) {
       next(error);
@@ -34,7 +38,11 @@ export class CandidateListController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const item = await this.service.update(getParam(req.params.id), req.body as UpdateCandidateListRequestDto, getAdmin(req));
+      const payload = req.body as UpdateCandidateListRequestDto;
+      if (req.file) {
+        payload.videoUrl = (req.file as any).path;
+      }
+      const item = await this.service.update(getParam(req.params.id), payload, getAdmin(req));
       res.status(200).json({ success: true, message: "Liste candidate mise a jour", data: item });
     } catch (error) {
       next(error);

@@ -3,6 +3,7 @@ import { requireAuth } from "../../auth/middleware/auth.guard";
 import { requirePermissions } from "../../auth/middleware/permissions.guard";
 import { validateBody } from "../../../shared/validators/validateBody";
 import { validateParams } from "../../../shared/validators/validateParams";
+import { uploadVideo } from "../../../shared/utils/cloudinary";
 import { CandidateListController } from "../controller/candidate-list.controller";
 import { CandidateListRepository } from "../repository/candidate-list.repository";
 import { CandidateListService } from "../service/candidate-list.service";
@@ -24,6 +25,7 @@ candidateListAdminRouter.use(requireAuth);
 candidateListAdminRouter.post(
   "/admin/candidate-lists",
   requirePermissions("candidate-list:write"),
+  uploadVideo.single("video"),
   validateBody(createCandidateListSchema),
   (req, res, next) => controller.create(req, res, next),
 );
@@ -36,6 +38,7 @@ candidateListAdminRouter.get(
 candidateListAdminRouter.patch(
   "/admin/candidate-lists/:id",
   requirePermissions("candidate-list:write"),
+  uploadVideo.single("video"),
   validateParams(candidateListIdParamSchema),
   validateBody(updateCandidateListSchema),
   (req, res, next) => controller.update(req, res, next),

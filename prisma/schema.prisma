@@ -81,6 +81,9 @@ model CandidateList {
   name        String   @db.VarChar(120)
   slogan      String?  @db.VarChar(240)
   description String?
+  members     Json?    @default("[]")
+  actionPlan  Json?    @default("[]")
+  videoUrl    String?  @db.VarChar(255)
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())

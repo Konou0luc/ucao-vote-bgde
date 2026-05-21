@@ -19,6 +19,24 @@ async function main() {
     },
   });
 
+  if (env.SECOND_ADMIN_EMAIL && env.SECOND_ADMIN_PASSWORD_HASH) {
+    await prisma.admin.upsert({
+      where: { email: env.SECOND_ADMIN_EMAIL },
+      update: {
+        passwordHash: env.SECOND_ADMIN_PASSWORD_HASH,
+        role: AdminRole.STANDARD_ADMIN,
+        isActive: true,
+      },
+      create: {
+        email: env.SECOND_ADMIN_EMAIL,
+        passwordHash: env.SECOND_ADMIN_PASSWORD_HASH,
+        role: AdminRole.STANDARD_ADMIN,
+        isActive: true,
+      },
+    });
+    logger.info(`Second admin ${env.SECOND_ADMIN_EMAIL} upserted`);
+  }
+
   await prisma.student.upsert({
     where: { matricule: "UCAO24A001" },
     update: {
