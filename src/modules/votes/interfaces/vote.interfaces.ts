@@ -1,4 +1,4 @@
-import type { CandidateList, OtpChallenge, Participation, Scrutin } from "../../../generated/prisma/client";
+import type { CandidateList, OtpChallenge, Participation, Scrutin } from "../../../generated/prisma";
 
 export type VoteSessionContext = OtpChallenge & {
   scrutin: Scrutin;

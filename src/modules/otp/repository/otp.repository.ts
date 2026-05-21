@@ -1,5 +1,5 @@
-import type { Prisma } from "../../../generated/prisma/client";
-import { OtpChallengeStatus, ScrutinStatus, StudentLevel } from "../../../generated/prisma/enums";
+import type { Prisma } from "../../../generated/prisma";
+import { OtpChallengeStatus, StudentLevel, ScrutinStatus } from "../../../generated/prisma";
 import type { OtpChallengeWithRelations, StudentWithRelations } from "../interfaces/otp.interfaces";
 import { prisma } from "../../../infrastructure/prisma/client";
 

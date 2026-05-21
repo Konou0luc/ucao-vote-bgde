@@ -1,5 +1,5 @@
-import type { Prisma } from "../../../generated/prisma/client";
-import { ScrutinStatus } from "../../../generated/prisma/enums";
+import type { Prisma } from "../../../generated/prisma";
+import { ScrutinStatus } from "../../../generated/prisma";
 import { prisma } from "../../../infrastructure/prisma/client";
 
 export class ScrutinAdminRepository {

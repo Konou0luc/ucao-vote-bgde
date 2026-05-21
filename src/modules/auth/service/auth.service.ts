@@ -1,4 +1,4 @@
-import { OtpChallengeStatus } from "../../../generated/prisma/enums";
+import { OtpChallengeStatus } from "../../../generated/prisma";
 import { env } from "../../../config/env";
 import { mailer } from "../../../infrastructure/mail/mailer";
 import { OTP_EXPIRES_IN_MINUTES, OTP_MAX_ATTEMPTS } from "../../../shared/constants/otp";

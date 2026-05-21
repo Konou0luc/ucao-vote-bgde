@@ -1,6 +1,6 @@
 import crypto from "crypto";
-import type { Prisma } from "../../../generated/prisma/client";
-import { OtpChallengeStatus, ScrutinStatus } from "../../../generated/prisma/enums";
+import type { Prisma } from "../../../generated/prisma";
+import { OtpChallengeStatus, ScrutinStatus } from "../../../generated/prisma";
 import { env } from "../../../config/env";
 import { prisma } from "../../../infrastructure/prisma/client";
 import type { CandidateListForVote, VoteSessionContext } from "../interfaces/vote.interfaces";
@@ -33,7 +33,7 @@ export class VoteRepository {
     studentId: string;
     candidateListId: string;
   }) {
-    return prisma.$transaction(async (tx: Prisma.TransactionClient) => {
+    return prisma.$transaction(async (tx: any) => {
       const challenge = await tx.otpChallenge.findUnique({
         where: { sessionToken: input.sessionToken },
       });

@@ -1,4 +1,4 @@
-import { ScrutinStatus } from "../../../generated/prisma/enums";
+import { ScrutinStatus } from "../../../generated/prisma";
 import { AppError } from "../../../shared/errors/AppError";
 import type { ActiveScrutinResponseDto } from "../dto/scrutin.dto";
 import { ScrutinRepository } from "../repository/scrutin.repository";

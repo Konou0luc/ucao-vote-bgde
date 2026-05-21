@@ -1,4 +1,4 @@
-import { OtpChallengeStatus, StudentLevel } from "../../../generated/prisma/enums";
+import { OtpChallengeStatus, StudentLevel } from "../../../generated/prisma";
 import { UniversityApiClient } from "../../../infrastructure/http/university-api.client";
 import { mailer } from "../../../infrastructure/mail/mailer";
 import { env } from "../../../config/env";

@@ -1,4 +1,4 @@
-import { OtpChallengeStatus } from "../../../generated/prisma/enums";
+import { OtpChallengeStatus } from "../../../generated/prisma";
 import { AppError } from "../../../shared/errors/AppError";
 import type { CastVoteRequestDto, CastVoteResponseDto } from "../dto/vote.dto";
 import { VoteRepository } from "../repository/vote.repository";

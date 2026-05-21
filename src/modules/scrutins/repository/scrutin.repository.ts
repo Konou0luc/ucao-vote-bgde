@@ -1,4 +1,4 @@
-import { ScrutinStatus } from "../../../generated/prisma/enums";
+import { ScrutinStatus } from "../../../generated/prisma";
 import { prisma } from "../../../infrastructure/prisma/client";
 
 export class ScrutinRepository {

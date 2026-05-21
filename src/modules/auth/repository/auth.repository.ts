@@ -1,5 +1,5 @@
-import type { Prisma } from "../../../generated/prisma/client";
-import { OtpChallengeStatus } from "../../../generated/prisma/enums";
+import type { Prisma } from "../../../generated/prisma";
+import { OtpChallengeStatus } from "../../../generated/prisma";
 import { prisma } from "../../../infrastructure/prisma/client";
 
 export class AuthRepository {

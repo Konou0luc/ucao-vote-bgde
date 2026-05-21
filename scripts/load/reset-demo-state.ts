@@ -1,4 +1,4 @@
-import { ScrutinStatus } from "../../src/generated/prisma/enums";
+import { ScrutinStatus } from "../../src/generated/prisma";
 import { prisma } from "../../src/infrastructure/prisma/client";
 
 async function main() {

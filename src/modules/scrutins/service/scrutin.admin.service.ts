@@ -1,4 +1,4 @@
-import { ScrutinStatus } from "../../../generated/prisma/enums";
+import { ScrutinStatus } from "../../../generated/prisma";
 import { AppError } from "../../../shared/errors/AppError";
 import type { AdminJwtPayload } from "../../auth/interfaces/auth.types";
 import type { CreateScrutinRequestDto, UpdateScrutinRequestDto } from "../dto/scrutin.admin.dto";

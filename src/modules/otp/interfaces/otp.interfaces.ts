@@ -1,4 +1,4 @@
-import type { OtpChallenge, Participation, Scrutin, Student } from "../../../generated/prisma/client";
+import type { OtpChallenge, Participation, Scrutin, Student } from "../../../generated/prisma";
 
 export interface ActiveScrutinWithRelations extends Scrutin {
   participations: Pick<Participation, "id" | "hasVoted">[];

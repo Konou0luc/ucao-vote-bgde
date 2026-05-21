@@ -1,4 +1,4 @@
-import { AdminRole, ScrutinStatus, StudentLevel } from "../src/generated/prisma/enums";
+import { AdminRole, ScrutinStatus, StudentLevel } from "../src/generated/prisma";
 import { prisma } from "../src/infrastructure/prisma/client";
 import { env } from "../src/config/env";
 import { logger } from "../src/infrastructure/logger/logger";

@@ -1,7 +1,7 @@
 import { attachDatabasePool } from "@vercel/functions";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
-import { PrismaClient } from "../../generated/prisma/client";
+import { PrismaClient } from "../../generated/prisma";
 import { env } from "../../config/env";
 
 // Sur Vercel, NODE_ENV peut être "development" : on utilise quand même NEON_DATABASE_URL si elle est définie.

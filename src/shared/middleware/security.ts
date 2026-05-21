@@ -3,6 +3,7 @@ import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import helmet from "helmet";
 import type { Request, RequestHandler } from "express";
 import { env } from "../../config/env";
+import { logger } from "../../infrastructure/logger/logger";
 
 export const helmetMiddleware = helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -19,12 +20,26 @@ export const helmetMiddleware = helmet({
 });
 
 export const corsMiddleware = cors({
-  origin: env.CORS_ORIGIN.split(",").map((origin) => {
-    const trimmed = origin.trim();
-    // Supprimer le slash final si présent car l'en-tête Origin du navigateur n'en contient jamais
-    return trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
-  }),
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = env.CORS_ORIGIN.split(",").map((o) => {
+      const t = o.trim();
+      return t.endsWith("/") ? t.slice(0, -1) : t;
+    });
+
+    const normalizedOrigin = origin.endsWith("/") ? origin.slice(0, -1) : origin;
+
+    if (allowedOrigins.includes(normalizedOrigin)) {
+      callback(null, true);
+    } else {
+      logger.warn({ origin, allowedOrigins }, "CORS blocked");
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true,
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "x-api-key"],
 });
 
 function createLimiter(limit: number, keyGenerator?: (req: Request) => string): RequestHandler {
