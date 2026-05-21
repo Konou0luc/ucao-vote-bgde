@@ -12,6 +12,10 @@ export interface ActiveScrutinResponseDto {
       id: string;
       name: string;
       slogan: string | null;
+      description: string | null;
+      members: Array<{ name: string; role: string }>;
+      actionPlan: string[];
+      videoUrl: string | null;
       order: number;
     }>;
   };

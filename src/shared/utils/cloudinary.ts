@@ -1,5 +1,5 @@
 import { v2 as cloudinary } from "cloudinary";
-import { CloudinaryStorage } from "multer-storage-cloudinary";
+const CloudinaryStorage = require("multer-storage-cloudinary");
 import multer from "multer";
 import { env } from "../../config/env";
 import { AppError } from "../errors/AppError";
@@ -14,7 +14,7 @@ cloudinary.config({
 // Configuration du stockage avec transformation automatique
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (req, file) => {
+  params: async (_req: any, _file: any) => {
     return {
       folder: "vote-gbde/videos",
       resource_type: "video",

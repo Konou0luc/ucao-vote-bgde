@@ -5,6 +5,7 @@ import type { Request, RequestHandler } from "express";
 import { env } from "../../config/env";
 
 export const helmetMiddleware = helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
   contentSecurityPolicy: {
     directives: {
       ...helmet.contentSecurityPolicy.getDefaultDirectives(),
@@ -18,7 +19,11 @@ export const helmetMiddleware = helmet({
 });
 
 export const corsMiddleware = cors({
-  origin: env.CORS_ORIGIN.split(",").map((origin) => origin.trim()),
+  origin: env.CORS_ORIGIN.split(",").map((origin) => {
+    const trimmed = origin.trim();
+    // Supprimer le slash final si présent car l'en-tête Origin du navigateur n'en contient jamais
+    return trimmed.endsWith("/") ? trimmed.slice(0, -1) : trimmed;
+  }),
   credentials: true,
 });
 

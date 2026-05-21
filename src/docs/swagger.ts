@@ -7,7 +7,10 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
     version: "1.0.0",
     description: "API backend du systeme de vote numerique BGDE.",
   },
-  servers: [{ url: "http://localhost:3000/api", description: "Local development server" }],
+  servers: [
+    { url: "http://localhost:3000/api", description: "Local development server" },
+    { url: "https://ucao-vote-bgde.vercel.app/api", description: "Production server" },
+  ],
   tags: [
     { name: "Health", description: "Etat de sante du backend" },
     { name: "Auth", description: "Authentification, tokens et autorisations" },
@@ -460,12 +463,36 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
       post: {
         tags: ["Admin"],
         summary: "Creer liste candidate",
+        description: "Permet de creer une liste avec ses membres, sa vision et sa video (upload via multipart/form-data).",
         security: [{ bearerAuth: [] }],
         requestBody: {
           required: true,
           content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/CreateCandidateListInput" },
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                required: ["scrutinId", "name", "order"],
+                properties: {
+                  scrutinId: { type: "string" },
+                  name: { type: "string" },
+                  slogan: { type: "string" },
+                  description: { type: "string", description: "Vision globale de la liste" },
+                  members: {
+                    type: "string",
+                    description: "JSON stringified array of {name, role}",
+                  },
+                  actionPlan: {
+                    type: "string",
+                    description: "JSON stringified array of strings (Vision / Plan d'action)",
+                  },
+                  video: {
+                    type: "string",
+                    format: "binary",
+                    description: "Fichier video (mp4, webm, mov)",
+                  },
+                  order: { type: "integer" },
+                },
+              },
             },
           },
         },
@@ -517,13 +544,35 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
       patch: {
         tags: ["Admin"],
         summary: "Mettre a jour liste candidate",
+        description: "Mise a jour partielle (multipart/form-data pour la video).",
         security: [{ bearerAuth: [] }],
         parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
         requestBody: {
           required: true,
           content: {
-            "application/json": {
-              schema: { $ref: "#/components/schemas/UpdateCandidateListInput" },
+            "multipart/form-data": {
+              schema: {
+                type: "object",
+                properties: {
+                  name: { type: "string" },
+                  slogan: { type: "string" },
+                  description: { type: "string", description: "Vision globale" },
+                  members: {
+                    type: "string",
+                    description: "JSON stringified array",
+                  },
+                  actionPlan: {
+                    type: "string",
+                    description: "JSON stringified array (Vision)",
+                  },
+                  video: {
+                    type: "string",
+                    format: "binary",
+                  },
+                  order: { type: "integer" },
+                  isActive: { type: "boolean" },
+                },
+              },
             },
           },
         },
@@ -582,9 +631,9 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
       BasicResponse: {
         type: "object",
         properties: {
-          success: { type: "boolean" },
-          message: { type: "string" },
-          data: { type: "object" },
+          success: { type: "boolean", example: true },
+          message: { type: "string", example: "Operation reussie" },
+          data: { type: "object", example: {} },
         },
       },
       LoginInput: {
@@ -629,6 +678,7 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
               otpSessionToken: { type: "string" },
               expiresInMinutes: { type: "number" },
               emailMasked: { type: "string" },
+              debugOtp: { type: "string", description: "Uniquement en dev/test avec MAIL_TRANSPORT=json" },
             },
           },
         },
@@ -636,22 +686,26 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
       AuthResponse: {
         type: "object",
         properties: {
-          success: { type: "boolean" },
-          message: { type: "string" },
+          success: { type: "boolean", example: true },
+          message: { type: "string", example: "Connexion reussie" },
           data: {
             type: "object",
             properties: {
-              accessToken: { type: "string" },
-              refreshToken: { type: "string" },
+              accessToken: { type: "string", example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." },
+              refreshToken: { type: "string", example: "def456..." },
               tokenType: { type: "string", example: "Bearer" },
-              expiresIn: { type: "string" },
+              expiresIn: { type: "string", example: "15m" },
               admin: {
                 type: "object",
                 properties: {
-                  id: { type: "string" },
-                  email: { type: "string" },
-                  role: { type: "string" },
-                  permissions: { type: "array", items: { type: "string" } },
+                  id: { type: "string", example: "clwh2u3y8000008l2..." },
+                  email: { type: "string", example: "admin@ucao-uut.tg" },
+                  role: { type: "string", example: "SUPER_ADMIN" },
+                  permissions: {
+                    type: "array",
+                    items: { type: "string" },
+                    example: ["scrutin:read", "scrutin:write", "dashboard:read"],
+                  },
                 },
               },
             },
@@ -677,6 +731,7 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
               sessionToken: { type: "string" },
               expiresInMinutes: { type: "number" },
               email: { type: "string" },
+              debugOtp: { type: "string", description: "Uniquement en dev/test avec MAIL_TRANSPORT=json" },
             },
           },
         },
@@ -738,27 +793,36 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
           endsAt: { type: "string", format: "date-time" },
           status: { type: "string" },
           resultsPublishedAt: { type: ["string", "null"], format: "date-time" },
+          candidateLists: {
+            type: "array",
+            items: { $ref: "#/components/schemas/CandidateList" },
+          },
         },
       },
       CreateScrutinInput: {
         type: "object",
         required: ["title", "startsAt", "endsAt"],
         properties: {
-          title: { type: "string", minLength: 3, maxLength: 180 },
-          description: { type: "string", maxLength: 1500 },
-          startsAt: { type: "string", format: "date-time" },
-          endsAt: { type: "string", format: "date-time" },
-          status: { type: "string", enum: ["DRAFT", "SCHEDULED", "OPEN", "CLOSED", "ARCHIVED"] },
+          title: { type: "string", minLength: 3, maxLength: 180, example: "Elections Bureau des Etudiants 2026" },
+          description: { type: "string", maxLength: 1500, example: "Scrutin annuel pour le renouvellement du bureau." },
+          startsAt: { type: "string", format: "date-time", example: "2026-06-01T08:00:00.000Z" },
+          endsAt: { type: "string", format: "date-time", example: "2026-06-01T18:00:00.000Z" },
+          status: {
+            type: "string",
+            enum: ["DRAFT", "SCHEDULED", "OPEN", "CLOSED", "ARCHIVED"],
+            default: "DRAFT",
+            example: "DRAFT",
+          },
         },
       },
       UpdateScrutinInput: {
         type: "object",
         properties: {
-          title: { type: "string", minLength: 3, maxLength: 180 },
-          description: { type: "string", maxLength: 1500 },
-          startsAt: { type: "string", format: "date-time" },
-          endsAt: { type: "string", format: "date-time" },
-          status: { type: "string", enum: ["DRAFT", "SCHEDULED", "OPEN", "CLOSED", "ARCHIVED"] },
+          title: { type: "string", minLength: 3, maxLength: 180, example: "Elections BDE 2026 (MAJ)" },
+          description: { type: "string", maxLength: 1500, example: "Mise a jour de la description." },
+          startsAt: { type: "string", format: "date-time", example: "2026-06-02T08:00:00.000Z" },
+          endsAt: { type: "string", format: "date-time", example: "2026-06-02T18:00:00.000Z" },
+          status: { type: "string", enum: ["DRAFT", "SCHEDULED", "OPEN", "CLOSED", "ARCHIVED"], example: "SCHEDULED" },
         },
       },
       ActiveScrutinResponse: {
@@ -783,6 +847,7 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
                     id: { type: "string" },
                     name: { type: "string" },
                     slogan: { type: ["string", "null"] },
+                    description: { type: ["string", "null"] },
                     members: {
                       type: "array",
                       items: { $ref: "#/components/schemas/CandidateListMember" },
@@ -895,6 +960,7 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
           actionPlan: {
             type: "array",
             items: { type: "string" },
+            description: "Plan d'action ou Vision de la liste candidate",
           },
           videoUrl: { type: ["string", "null"], format: "uri" },
           order: { type: "number" },
@@ -912,28 +978,33 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
         type: "object",
         required: ["scrutinId", "name", "order"],
         properties: {
-          scrutinId: { type: "string" },
-          name: { type: "string", minLength: 2, maxLength: 120 },
-          slogan: { type: "string", maxLength: 240 },
-          description: { type: "string", maxLength: 1500 },
+          scrutinId: { type: "string", example: "clwh2u3y8000008l2..." },
+          name: { type: "string", minLength: 2, maxLength: 120, example: "Liste 'Avenir Radiant'" },
+          slogan: { type: "string", maxLength: 240, example: "Ensemble pour un campus meilleur" },
+          description: { type: "string", maxLength: 1500, example: "Une liste dynamique portee par des etudiants de L3." },
           members: {
             type: "array",
             items: { $ref: "#/components/schemas/CandidateListMember" },
+            example: [
+              { name: "Koffi Mensah", role: "President" },
+              { name: "Ama Kossi", role: "Secretaire" },
+            ],
           },
           actionPlan: {
             type: "array",
             items: { type: "string" },
+            example: ["Amelioration de la cafeteria", "Creation d'un club de sport"],
           },
-          videoUrl: { type: "string", format: "uri" },
-          order: { type: "number", minimum: 1, maximum: 100 },
+          videoUrl: { type: "string", format: "uri", example: "https://www.youtube.com/watch?v=..." },
+          order: { type: "number", minimum: 1, maximum: 100, example: 1 },
         },
       },
       UpdateCandidateListInput: {
         type: "object",
         properties: {
-          name: { type: "string", minLength: 2, maxLength: 120 },
-          slogan: { type: "string", maxLength: 240 },
-          description: { type: "string", maxLength: 1500 },
+          name: { type: "string", minLength: 2, maxLength: 120, example: "Liste 'Avenir Radiant' (MAJ)" },
+          slogan: { type: "string", maxLength: 240, example: "Innover pour reussir" },
+          description: { type: "string", maxLength: 1500, example: "Mise a jour du programme." },
           members: {
             type: "array",
             items: { $ref: "#/components/schemas/CandidateListMember" },
@@ -944,7 +1015,7 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
           },
           videoUrl: { type: "string", format: "uri" },
           order: { type: "number", minimum: 1, maximum: 100 },
-          isActive: { type: "boolean" },
+          isActive: { type: "boolean", example: true },
         },
       },
     },

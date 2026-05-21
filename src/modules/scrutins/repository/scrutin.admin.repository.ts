@@ -9,12 +9,24 @@ export class ScrutinAdminRepository {
 
   list() {
     return prisma.scrutin.findMany({
+      include: {
+        candidateLists: {
+          orderBy: { order: "asc" },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
   }
 
   findById(id: string) {
-    return prisma.scrutin.findUnique({ where: { id } });
+    return prisma.scrutin.findUnique({
+      where: { id },
+      include: {
+        candidateLists: {
+          orderBy: { order: "asc" },
+        },
+      },
+    });
   }
 
   findOpenScrutin(excludeId?: string) {

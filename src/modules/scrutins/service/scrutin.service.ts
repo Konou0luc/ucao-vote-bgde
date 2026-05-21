@@ -23,7 +23,11 @@ export class ScrutinService {
         startsAt: scrutin.startsAt.toISOString(),
         endsAt: scrutin.endsAt.toISOString(),
         status: scrutin.status,
-        candidateLists: scrutin.candidateLists,
+        candidateLists: scrutin.candidateLists.map((list) => ({
+          ...list,
+          members: (list.members as any) ?? [],
+          actionPlan: (list.actionPlan as any) ?? [],
+        })),
       },
     };
   }
