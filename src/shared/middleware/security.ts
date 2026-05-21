@@ -34,7 +34,7 @@ export const corsMiddleware = cors({
       callback(null, true);
     } else {
       logger.warn({ origin, allowedOrigins }, "CORS blocked");
-      callback(new Error("Not allowed by CORS"));
+      callback(null, false);
     }
   },
   credentials: true,

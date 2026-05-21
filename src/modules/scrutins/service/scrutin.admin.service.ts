@@ -41,8 +41,21 @@ export class ScrutinAdminService {
     return scrutin;
   }
 
-  list() {
-    return this.repository.list();
+  async list() {
+    try {
+      const scrutins = await this.repository.list();
+      return scrutins.map((scrutin) => ({
+        ...scrutin,
+        candidateLists: (scrutin as any).candidateLists?.map((list: any) => ({
+          ...list,
+          members: list.members ?? [],
+          actionPlan: list.actionPlan ?? [],
+        })) || [],
+      }));
+    } catch (error) {
+      console.error("Error in ScrutinAdminService.list:", error);
+      throw error;
+    }
   }
 
   async update(id: string, payload: UpdateScrutinRequestDto, admin: AdminJwtPayload) {

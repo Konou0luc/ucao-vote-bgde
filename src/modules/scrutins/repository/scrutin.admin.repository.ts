@@ -9,8 +9,27 @@ export class ScrutinAdminRepository {
 
   list() {
     return prisma.scrutin.findMany({
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startsAt: true,
+        endsAt: true,
+        status: true,
+        resultsPublishedAt: true,
+        createdAt: true,
         candidateLists: {
+          select: {
+            id: true,
+            name: true,
+            slogan: true,
+            description: true,
+            members: true,
+            actionPlan: true,
+            videoUrl: true,
+            order: true,
+            isActive: true,
+          },
           orderBy: { order: "asc" },
         },
       },
@@ -21,8 +40,27 @@ export class ScrutinAdminRepository {
   findById(id: string) {
     return prisma.scrutin.findUnique({
       where: { id },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        startsAt: true,
+        endsAt: true,
+        status: true,
+        resultsPublishedAt: true,
+        createdAt: true,
         candidateLists: {
+          select: {
+            id: true,
+            name: true,
+            slogan: true,
+            description: true,
+            members: true,
+            actionPlan: true,
+            videoUrl: true,
+            order: true,
+            isActive: true,
+          },
           orderBy: { order: "asc" },
         },
       },
