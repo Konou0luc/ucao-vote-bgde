@@ -23,7 +23,8 @@ export class CandidateListController {
       const file = files?.video?.[0] || files?.image?.[0] || (req as any).file;
       
       if (file) {
-        payload.videoUrl = file.path;
+        // On vérifie secure_url puis path pour être sûr de récupérer l'URL Cloudinary
+        payload.videoUrl = file.secure_url || file.path;
       }
       
       const item = await this.service.create(payload, getAdmin(req));
@@ -51,7 +52,8 @@ export class CandidateListController {
       const file = files?.video?.[0] || files?.image?.[0] || (req as any).file;
       
       if (file) {
-        payload.videoUrl = file.path;
+        // On vérifie secure_url puis path pour être sûr de récupérer l'URL Cloudinary
+        payload.videoUrl = file.secure_url || file.path;
       }
       
       const item = await this.service.update(getParam(req.params.id), payload, getAdmin(req));
