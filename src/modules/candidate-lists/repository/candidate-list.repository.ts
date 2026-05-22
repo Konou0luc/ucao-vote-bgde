@@ -6,6 +6,17 @@ export class CandidateListRepository {
     return prisma.scrutin.findUnique({ where: { id: scrutinId } });
   }
 
+  findByNameAndScrutin(name: string, scrutinId: string) {
+    return prisma.candidateList.findUnique({
+      where: {
+        scrutinId_name: {
+          scrutinId,
+          name,
+        },
+      },
+    });
+  }
+
   create(data: Prisma.CandidateListCreateInput) {
     return prisma.candidateList.create({ data });
   }

@@ -12,6 +12,11 @@ export class CandidateListService {
       throw new AppError("Scrutin introuvable", 404);
     }
 
+    const existing = await this.repository.findByNameAndScrutin(payload.name, payload.scrutinId);
+    if (existing) {
+      throw new AppError(`Une liste nommée "${payload.name}" existe déjà pour ce scrutin`, 409);
+    }
+
     const created = await this.repository.create({
       scrutin: { connect: { id: payload.scrutinId } },
       name: payload.name,
