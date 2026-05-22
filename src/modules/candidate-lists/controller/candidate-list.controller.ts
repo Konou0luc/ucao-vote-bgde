@@ -2,6 +2,7 @@ import type { NextFunction, Request, Response } from "express";
 import type { AdminJwtPayload } from "../../auth/interfaces/auth.types";
 import type { CreateCandidateListRequestDto, UpdateCandidateListRequestDto } from "../dto/candidate-list.dto";
 import { CandidateListService } from "../service/candidate-list.service";
+import { uploadToCloudinary } from "../../../shared/utils/cloudinary";
 
 function getAdmin(req: Request): AdminJwtPayload {
   return (req as Request & { admin: AdminJwtPayload }).admin;
@@ -19,13 +20,15 @@ export class CandidateListController {
       const files = req.files as any;
       
       if (files?.video?.[0]) {
-        const f = files.video[0];
-        req.body.videoUrl = f.path || f.secure_url || f.url;
+        console.log("Upload vidéo vers Cloudinary en cours...");
+        req.body.videoUrl = await uploadToCloudinary(files.video[0]);
+        console.log("Upload vidéo terminé:", req.body.videoUrl);
       }
       
       if (files?.image?.[0]) {
-        const f = files.image[0];
-        req.body.imageUrl = f.path || f.secure_url || f.url;
+        console.log("Upload image vers Cloudinary en cours...");
+        req.body.imageUrl = await uploadToCloudinary(files.image[0]);
+        console.log("Upload image terminé:", req.body.imageUrl);
       }
       
       const payload = req.body as CreateCandidateListRequestDto;
@@ -50,13 +53,15 @@ export class CandidateListController {
       const files = req.files as any;
       
       if (files?.video?.[0]) {
-        const f = files.video[0];
-        req.body.videoUrl = f.path || f.secure_url || f.url;
+        console.log("Update: Upload vidéo vers Cloudinary en cours...");
+        req.body.videoUrl = await uploadToCloudinary(files.video[0]);
+        console.log("Update: Upload vidéo terminé:", req.body.videoUrl);
       }
       
       if (files?.image?.[0]) {
-        const f = files.image[0];
-        req.body.imageUrl = f.path || f.secure_url || f.url;
+        console.log("Update: Upload image vers Cloudinary en cours...");
+        req.body.imageUrl = await uploadToCloudinary(files.image[0]);
+        console.log("Update: Upload image terminé:", req.body.imageUrl);
       }
       
       const payload = req.body as UpdateCandidateListRequestDto;
