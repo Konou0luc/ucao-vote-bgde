@@ -16,17 +16,16 @@ export class CandidateListController {
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const payload = req.body as CreateCandidateListRequestDto;
-      
-      // Gestion des fichiers (video ou image)
+      // Gestion des fichiers (video ou image) avant la validation Zod
       const files = req.files as any;
       const file = files?.video?.[0] || files?.image?.[0] || (req as any).file;
       
       if (file) {
-        // On vérifie secure_url puis path pour être sûr de récupérer l'URL Cloudinary
-        payload.videoUrl = file.secure_url || file.path;
+        // On injecte l'URL Cloudinary dans le body pour que Zod le valide
+        req.body.videoUrl = file.secure_url || file.path;
       }
       
+      const payload = req.body as CreateCandidateListRequestDto;
       const item = await this.service.create(payload, getAdmin(req));
       res.status(201).json({ success: true, message: "Liste candidate creee", data: item });
     } catch (error) {
@@ -45,17 +44,16 @@ export class CandidateListController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const payload = req.body as UpdateCandidateListRequestDto;
-      
-      // Gestion des fichiers (video ou image)
+      // Gestion des fichiers (video ou image) avant la validation Zod
       const files = req.files as any;
       const file = files?.video?.[0] || files?.image?.[0] || (req as any).file;
       
       if (file) {
-        // On vérifie secure_url puis path pour être sûr de récupérer l'URL Cloudinary
-        payload.videoUrl = file.secure_url || file.path;
+        // On injecte l'URL Cloudinary dans le body pour que Zod le valide
+        req.body.videoUrl = file.secure_url || file.path;
       }
       
+      const payload = req.body as UpdateCandidateListRequestDto;
       const item = await this.service.update(getParam(req.params.id), payload, getAdmin(req));
       res.status(200).json({ success: true, message: "Liste candidate mise a jour", data: item });
     } catch (error) {
