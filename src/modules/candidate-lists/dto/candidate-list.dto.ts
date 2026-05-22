@@ -11,6 +11,7 @@ export interface CreateCandidateListRequestDto {
   members?: CandidateListMemberDto[];
   actionPlan?: string[];
   videoUrl?: string;
+  imageUrl?: string;
   order: number;
 }
 
@@ -21,6 +22,7 @@ export interface UpdateCandidateListRequestDto {
   members?: CandidateListMemberDto[];
   actionPlan?: string[];
   videoUrl?: string;
+  imageUrl?: string;
   order?: number;
   isActive?: boolean;
 }

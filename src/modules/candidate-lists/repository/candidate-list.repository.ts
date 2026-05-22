@@ -1,12 +1,11 @@
-import type { Prisma } from "../../../generated/prisma";
 import { prisma } from "../../../infrastructure/prisma/client";
 
 export class CandidateListRepository {
-  findScrutinById(scrutinId: string) {
+  async findScrutinById(scrutinId: string) {
     return prisma.scrutin.findUnique({ where: { id: scrutinId } });
   }
 
-  findByNameAndScrutin(name: string, scrutinId: string) {
+  async findByNameAndScrutin(name: string, scrutinId: string) {
     return prisma.candidateList.findUnique({
       where: {
         scrutinId_name: {
@@ -17,38 +16,44 @@ export class CandidateListRepository {
     });
   }
 
-  create(data: Prisma.CandidateListCreateInput) {
-    return prisma.candidateList.create({ data });
+  async create(data: any) {
+    return prisma.candidateList.create({
+      data: {
+        ...data,
+        members: data.members as any,
+        actionPlan: data.actionPlan as any,
+      },
+    });
   }
 
-  listByScrutin(scrutinId: string) {
+  async listByScrutin(scrutinId: string) {
     return prisma.candidateList.findMany({
       where: { scrutinId },
       orderBy: { order: "asc" },
     });
   }
 
-  findById(id: string) {
+  async findById(id: string) {
     return prisma.candidateList.findUnique({ where: { id } });
   }
 
-  update(id: string, data: Prisma.CandidateListUpdateInput) {
-    return prisma.candidateList.update({ where: { id }, data });
-  }
-
-  deactivate(id: string) {
+  async update(id: string, data: any) {
     return prisma.candidateList.update({
       where: { id },
-      data: { isActive: false },
+      data: {
+        ...data,
+        members: data.members ? (data.members as any) : undefined,
+        actionPlan: data.actionPlan ? (data.actionPlan as any) : undefined,
+      },
     });
   }
 
-  createAuditLog(input: {
+  async createAuditLog(input: {
     adminId: string;
     action: string;
     entity: string;
     entityId?: string;
-    metadata?: Prisma.InputJsonValue;
+    metadata?: any;
   }) {
     return prisma.auditLog.create({
       data: {

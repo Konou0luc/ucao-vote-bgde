@@ -16,13 +16,16 @@ export class CandidateListController {
 
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // Gestion des fichiers (video ou image) avant la validation Zod
       const files = req.files as any;
-      const file = files?.video?.[0] || files?.image?.[0] || (req as any).file;
       
-      if (file) {
-        // On injecte l'URL Cloudinary dans le body pour que Zod le valide
-        req.body.videoUrl = file.secure_url || file.path;
+      if (files?.video?.[0]) {
+        const videoFile = files.video[0];
+        req.body.videoUrl = videoFile.secure_url || videoFile.path;
+      }
+      
+      if (files?.image?.[0]) {
+        const imageFile = files.image[0];
+        req.body.imageUrl = imageFile.secure_url || imageFile.path;
       }
       
       const payload = req.body as CreateCandidateListRequestDto;
@@ -44,13 +47,16 @@ export class CandidateListController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      // Gestion des fichiers (video ou image) avant la validation Zod
       const files = req.files as any;
-      const file = files?.video?.[0] || files?.image?.[0] || (req as any).file;
       
-      if (file) {
-        // On injecte l'URL Cloudinary dans le body pour que Zod le valide
-        req.body.videoUrl = file.secure_url || file.path;
+      if (files?.video?.[0]) {
+        const videoFile = files.video[0];
+        req.body.videoUrl = videoFile.secure_url || videoFile.path;
+      }
+      
+      if (files?.image?.[0]) {
+        const imageFile = files.image[0];
+        req.body.imageUrl = imageFile.secure_url || imageFile.path;
       }
       
       const payload = req.body as UpdateCandidateListRequestDto;

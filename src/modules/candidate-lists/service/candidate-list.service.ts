@@ -18,15 +18,15 @@ export class CandidateListService {
     }
 
     const created = await this.repository.create({
-      scrutin: { connect: { id: payload.scrutinId } },
+      scrutinId: payload.scrutinId,
       name: payload.name,
       slogan: payload.slogan,
       description: payload.description,
-      members: payload.members as any,
-      actionPlan: payload.actionPlan as any,
+      members: payload.members || [],
+      actionPlan: payload.actionPlan || [],
       videoUrl: payload.videoUrl,
+      imageUrl: payload.imageUrl,
       order: payload.order,
-      isActive: true,
     });
 
     await this.repository.createAuditLog({
@@ -40,17 +40,15 @@ export class CandidateListService {
     return created;
   }
 
-  listByScrutin(scrutinId: string) {
+  async listByScrutin(scrutinId: string) {
     return this.repository.listByScrutin(scrutinId);
   }
 
   async update(id: string, payload: UpdateCandidateListRequestDto, admin: AdminJwtPayload) {
-    const exists = await this.repository.findById(id);
-    if (!exists) {
-      throw new AppError("Liste candidate introuvable", 404);
-    }
+    const item = await this.repository.findById(id);
+    if (!item) throw new AppError("Liste candidate introuvable", 404);
 
-    const updated = await this.repository.update(id, payload as any);
+    const updated = await this.repository.update(id, payload);
 
     await this.repository.createAuditLog({
       adminId: admin.sub,
@@ -63,12 +61,10 @@ export class CandidateListService {
   }
 
   async deactivate(id: string, admin: AdminJwtPayload) {
-    const exists = await this.repository.findById(id);
-    if (!exists) {
-      throw new AppError("Liste candidate introuvable", 404);
-    }
+    const item = await this.repository.findById(id);
+    if (!item) throw new AppError("Liste candidate introuvable", 404);
 
-    const updated = await this.repository.deactivate(id);
+    const updated = await this.repository.update(id, { isActive: false });
 
     await this.repository.createAuditLog({
       adminId: admin.sub,
