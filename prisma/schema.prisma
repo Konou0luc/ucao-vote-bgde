@@ -1,39 +1,12 @@
 generator client {
-  provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  provider     = "prisma-client-js"
+  output       = "../src/generated/prisma"
   moduleFormat = "cjs"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
-}
-
-enum ScrutinStatus {
-  DRAFT
-  SCHEDULED
-  OPEN
-  CLOSED
-  ARCHIVED
-}
-
-enum StudentLevel {
-  L1
-  L2
-  L3
-}
-
-enum AdminRole {
-  SUPER_ADMIN
-  STANDARD_ADMIN
-}
-
-enum OtpChallengeStatus {
-  PENDING
-  VERIFIED
-  EXPIRED
-  LOCKED
-  USED
 }
 
 model Student {
@@ -47,8 +20,8 @@ model Student {
   isEligible     Boolean         @default(true)
   createdAt      DateTime        @default(now())
   updatedAt      DateTime        @updatedAt
-  participations Participation[]
   otpChallenges  OtpChallenge[]
+  participations Participation[]
 
   @@index([matricule])
   @@index([department, level])
@@ -59,9 +32,6 @@ model Scrutin {
   id                 String          @id @default(cuid())
   title              String          @db.VarChar(180)
   description        String?
-  bannerUrl          String?         @db.VarChar(255)
-  targetDepartment   String?         @db.VarChar(120)
-  targetLevel        StudentLevel?
   startsAt           DateTime
   endsAt             DateTime
   status             ScrutinStatus   @default(DRAFT)
@@ -69,10 +39,13 @@ model Scrutin {
   createdByAdminId   String
   createdAt          DateTime        @default(now())
   updatedAt          DateTime        @updatedAt
+  bannerUrl          String?         @db.VarChar(255)
+  targetDepartment   String?         @db.VarChar(120)
+  targetLevel        StudentLevel?
   candidateLists     CandidateList[]
+  otpChallenges      OtpChallenge[]
   participations     Participation[]
   votes              Vote[]
-  otpChallenges      OtpChallenge[]
 
   @@index([status, startsAt, endsAt])
   @@index([createdByAdminId])
@@ -86,13 +59,13 @@ model CandidateList {
   name        String   @db.VarChar(120)
   slogan      String?  @db.VarChar(240)
   description String?
-  members     Json?    @default("[]")
-  actionPlan  Json?    @default("[]")
-  videoUrl    String?  @db.VarChar(255)
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  actionPlan  Json?    @default("[]")
+  members     Json?    @default("[]")
+  videoUrl    String?  @db.VarChar(255)
   scrutin     Scrutin  @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
   votes       Vote[]
 
@@ -111,8 +84,8 @@ model Participation {
   participationRef String    @unique @db.VarChar(128)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt
-  student          Student   @relation(fields: [studentId], references: [id], onDelete: Restrict)
   scrutin          Scrutin   @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
+  student          Student   @relation(fields: [studentId], references: [id])
 
   @@unique([studentId, scrutinId])
   @@index([scrutinId, hasVoted])
@@ -137,8 +110,8 @@ model OtpChallenge {
   resendCount  Int                @default(0)
   createdAt    DateTime           @default(now())
   updatedAt    DateTime           @updatedAt
-  student      Student            @relation(fields: [studentId], references: [id], onDelete: Restrict)
   scrutin      Scrutin            @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
+  student      Student            @relation(fields: [studentId], references: [id])
 
   @@index([studentId, scrutinId, status])
   @@index([sessionToken, expiresAt])
@@ -153,8 +126,8 @@ model Vote {
   participationRef String        @unique @db.VarChar(128)
   auditHash        String        @unique @db.VarChar(255)
   castAt           DateTime      @default(now())
+  candidateList    CandidateList @relation(fields: [candidateListId], references: [id])
   scrutin          Scrutin       @relation(fields: [scrutinId], references: [id], onDelete: Cascade)
-  candidateList    CandidateList @relation(fields: [candidateListId], references: [id], onDelete: Restrict)
 
   @@index([scrutinId, candidateListId])
   @@index([castAt])
@@ -162,17 +135,17 @@ model Vote {
 }
 
 model Admin {
-  id                 String               @id @default(cuid())
-  email              String               @unique @db.VarChar(255)
-  passwordHash       String               @db.VarChar(255)
-  role               AdminRole            @default(STANDARD_ADMIN)
-  permissions        Json?                @default("[]")
-  isActive           Boolean              @default(true)
+  id                 String              @id @default(cuid())
+  email              String              @unique @db.VarChar(255)
+  passwordHash       String              @db.VarChar(255)
+  role               AdminRole           @default(STANDARD_ADMIN)
+  permissions        Json?               @default("[]")
+  isActive           Boolean             @default(true)
   lastLoginAt        DateTime?
-  createdAt          DateTime             @default(now())
-  updatedAt          DateTime             @updatedAt
-  auditLogs          AuditLog[]
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
   adminOtpChallenges AdminOtpChallenge[]
+  auditLogs          AuditLog[]
 
   @@index([role, isActive])
   @@map("admins")
@@ -207,10 +180,37 @@ model AuditLog {
   userAgent String?
   metadata  Json?
   createdAt DateTime @default(now())
-  admin     Admin?   @relation(fields: [adminId], references: [id], onDelete: SetNull)
+  admin     Admin?   @relation(fields: [adminId], references: [id])
 
   @@index([action, createdAt])
   @@index([entity, entityId])
   @@index([severity, createdAt])
   @@map("audit_logs")
+}
+
+enum ScrutinStatus {
+  DRAFT
+  SCHEDULED
+  OPEN
+  CLOSED
+  ARCHIVED
+}
+
+enum StudentLevel {
+  L1
+  L2
+  L3
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  STANDARD_ADMIN
+}
+
+enum OtpChallengeStatus {
+  PENDING
+  VERIFIED
+  EXPIRED
+  LOCKED
+  USED
 }
