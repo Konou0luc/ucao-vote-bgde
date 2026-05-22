@@ -33,10 +33,10 @@ candidateListAdminRouter.post(
   (req, res, next) => {
     const files = req.files as any;
     if (files?.video?.[0]) {
-      req.body.videoUrl = files.video[0].secure_url || files.video[0].path;
+      req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
     }
     if (files?.image?.[0]) {
-      req.body.imageUrl = files.image[0].secure_url || files.image[0].path;
+      req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
     }
     next();
   },
@@ -60,10 +60,10 @@ candidateListAdminRouter.patch(
   (req, res, next) => {
     const files = req.files as any;
     if (files?.video?.[0]) {
-      req.body.videoUrl = files.video[0].secure_url || files.video[0].path;
+      req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
     }
     if (files?.image?.[0]) {
-      req.body.imageUrl = files.image[0].secure_url || files.image[0].path;
+      req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
     }
     next();
   },

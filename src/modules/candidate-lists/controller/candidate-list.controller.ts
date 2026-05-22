@@ -17,23 +17,14 @@ export class CandidateListController {
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const files = req.files as any;
-      console.log("DEBUG - Fichiers reçus (create):", {
-        hasFiles: !!files,
-        fields: files ? Object.keys(files) : [],
-        video: files?.video?.[0] ? "PRESENT" : "ABSENT",
-        image: files?.image?.[0] ? "PRESENT" : "ABSENT"
-      });
       
+      // L'injection se fait maintenant de manière plus robuste
       if (files?.video?.[0]) {
-        const videoFile = files.video[0];
-        req.body.videoUrl = videoFile.secure_url || videoFile.path;
-        console.log("DEBUG - Video URL injectée:", req.body.videoUrl);
+        req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
       }
       
       if (files?.image?.[0]) {
-        const imageFile = files.image[0];
-        req.body.imageUrl = imageFile.secure_url || imageFile.path;
-        console.log("DEBUG - Image URL injectée:", req.body.imageUrl);
+        req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
       }
       
       const payload = req.body as CreateCandidateListRequestDto;
@@ -56,23 +47,13 @@ export class CandidateListController {
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const files = req.files as any;
-      console.log("DEBUG - Fichiers reçus (update):", {
-        hasFiles: !!files,
-        fields: files ? Object.keys(files) : [],
-        video: files?.video?.[0] ? "PRESENT" : "ABSENT",
-        image: files?.image?.[0] ? "PRESENT" : "ABSENT"
-      });
       
       if (files?.video?.[0]) {
-        const videoFile = files.video[0];
-        req.body.videoUrl = videoFile.secure_url || videoFile.path;
-        console.log("DEBUG - Video URL injectée (update):", req.body.videoUrl);
+        req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
       }
       
       if (files?.image?.[0]) {
-        const imageFile = files.image[0];
-        req.body.imageUrl = imageFile.secure_url || imageFile.path;
-        console.log("DEBUG - Image URL injectée (update):", req.body.imageUrl);
+        req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
       }
       
       const payload = req.body as UpdateCandidateListRequestDto;

@@ -59,7 +59,7 @@ model Scrutin {
   id                 String          @id @default(cuid())
   title              String          @db.VarChar(180)
   description        String?
-  bannerUrl          String?         @db.VarChar(255)
+  bannerUrl          String?         @db.VarChar(500)
   targetDepartment   String?         @db.VarChar(120)
   targetLevel        StudentLevel?
   startsAt           DateTime
@@ -88,8 +88,8 @@ model CandidateList {
   description String?
   members     Json?    @default("[]")
   actionPlan  Json?    @default("[]")
-  videoUrl    String?  @db.VarChar(255)
-  imageUrl    String?  @db.VarChar(255)
+  videoUrl    String?  @db.VarChar(500)
+  imageUrl    String?  @db.VarChar(500)
   order       Int      @default(0)
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
