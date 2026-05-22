@@ -24,7 +24,7 @@ export class AdminManagementController {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
-      const admin = await this.service.updateAdmin(req.params.id, req.body);
+      const admin = await this.service.updateAdmin(req.params.id as string, req.body);
       res.status(200).json({ success: true, data: admin });
     } catch (error) {
       next(error);
@@ -33,7 +33,7 @@ export class AdminManagementController {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      await this.service.deleteAdmin(req.params.id);
+      await this.service.deleteAdmin(req.params.id as string);
       res.status(200).json({ success: true, message: "Administrateur supprimé" });
     } catch (error) {
       next(error);
