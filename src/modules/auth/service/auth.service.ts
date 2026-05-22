@@ -12,6 +12,7 @@ import {
 import type {
   AdminLoginPendingOtpResponseDto,
   AuthResponseDto,
+  ChangePasswordRequestDto,
   LoginRequestDto,
   LogoutRequestDto,
   RefreshTokenRequestDto,
@@ -20,7 +21,7 @@ import type {
 import { AuthError } from "../errors/AuthError";
 import type { AdminRole, AuthPermission, AuthenticatedAdmin } from "../interfaces/auth.types";
 import { AuthRepository } from "../repository/auth.repository";
-import { verifyPassword } from "../utils/password.util";
+import { hashPassword, verifyPassword } from "../utils/password.util";
 import { TokenService } from "./token.service";
 
 function getRolePermissions(role: AdminRole): AuthPermission[] {
@@ -198,6 +199,25 @@ export class AuthService {
       },
     };
   }
+
+  async changePassword(adminId: string, payload: ChangePasswordRequestDto) {
+  const admin = await this.repository.findAdminById(adminId);
+  if (!admin) throw new AuthError("Admin introuvable", 404);
+
+  const isValid = await verifyPassword(payload.currentPassword, admin.passwordHash);
+  if (!isValid) throw new AuthError("Mot de passe actuel incorrect", 401);
+
+  const newHash = await hashPassword(payload.newPassword);
+  await this.repository.updateAdminPassword(adminId, newHash);
+
+  await this.repository.createAuditLog({
+    adminId,
+    action: "AUTH_PASSWORD_CHANGED",
+    entity: "Admin",
+    entityId: adminId,
+    severity: "INFO",
+  });
+}
 
   async refreshToken(payload: RefreshTokenRequestDto): Promise<AuthResponseDto> {
     const refreshPayload = this.tokenService.verifyRefreshToken(payload.refreshToken);

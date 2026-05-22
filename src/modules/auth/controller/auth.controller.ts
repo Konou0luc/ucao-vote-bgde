@@ -51,6 +51,16 @@ export class AuthController {
     }
   }
 
+  async changePassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const adminId = (req as any).admin.sub;
+    await this.service.changePassword(adminId, req.body);
+    res.status(200).json({ success: true, message: "Mot de passe modifié" });
+  } catch (error) {
+    next(error);
+  }
+}
+
   async logout(
     req: Request<unknown, { success: true; message: string; data: {} }, LogoutRequestDto>,
     res: Response<{ success: true; message: string; data: {} }>,

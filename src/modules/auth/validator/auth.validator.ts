@@ -17,3 +17,8 @@ export const verifyLoginOtpSchema = z.object({
   otpSessionToken: z.string().trim().min(32),
   otp: z.string().trim().regex(/^\d{6}$/, "Le code doit contenir 6 chiffres"),
 });
+
+export const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(128),
+});

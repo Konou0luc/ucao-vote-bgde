@@ -18,6 +18,13 @@ export class AuthRepository {
     });
   }
 
+  async updateAdminPassword(adminId: string, passwordHash: string) {
+    return prisma.admin.update({
+      where: { id: adminId },
+      data: { passwordHash },
+    });
+  }
+
   createAuditLog(input: {
     adminId?: string;
     action: string;

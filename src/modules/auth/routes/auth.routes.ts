@@ -4,7 +4,14 @@ import { AuthController } from "../controller/auth.controller";
 import { AuthRepository } from "../repository/auth.repository";
 import { AuthService } from "../service/auth.service";
 import { TokenService } from "../service/token.service";
-import { loginSchema, logoutSchema, refreshTokenSchema, verifyLoginOtpSchema } from "../validator/auth.validator";
+import { requireAuth } from "../middleware/auth.guard";
+import {
+  changePasswordSchema,
+  loginSchema,
+  logoutSchema,
+  refreshTokenSchema,
+  verifyLoginOtpSchema,
+} from "../validator/auth.validator";
 
 const authRepository = new AuthRepository();
 const tokenService = new TokenService();
@@ -21,5 +28,11 @@ authRouter.post("/auth/login/verify", validateBody(verifyLoginOtpSchema), (req, 
 authRouter.post("/auth/refresh", validateBody(refreshTokenSchema), (req, res, next) => authController.refresh(req, res, next));
 authRouter.post("/auth/logout", validateBody(logoutSchema), (req, res, next) => authController.logout(req, res, next));
 
+authRouter.post(
+  "/auth/change-password",
+  requireAuth,
+  validateBody(changePasswordSchema),
+  (req, res, next) => authController.changePassword(req, res, next)
+);
 // Backward-compatible login route
 authRouter.post("/admin/login", validateBody(loginSchema), (req, res, next) => authController.login(req, res, next));

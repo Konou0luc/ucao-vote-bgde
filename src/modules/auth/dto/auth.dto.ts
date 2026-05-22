@@ -18,6 +18,11 @@ export interface VerifyLoginOtpRequestDto {
   otp: string;
 }
 
+export interface ChangePasswordRequestDto {
+  currentPassword: string;
+  newPassword: string;
+}
+
 export interface AdminLoginPendingOtpResponseDto {
   success: true;
   message: string;
