@@ -22,7 +22,7 @@ export const createCandidateListSchema = z.object({
     }
     return val;
   }, z.array(z.string().trim().max(500)).optional()),
-  videoUrl: z.preprocess((val) => (val === "" ? undefined : val), z.string().url().max(255).optional()),
+  videoUrl: z.string().url().max(255).optional(),
   order: z.preprocess((val) => (typeof val === "string" ? parseInt(val, 10) : val), z.number().int().min(1).max(100)),
 });
 
@@ -43,7 +43,7 @@ export const updateCandidateListSchema = z
       }
       return val;
     }, z.array(z.string().trim().max(500)).optional()),
-    videoUrl: z.preprocess((val) => (val === "" ? undefined : val), z.string().url().max(255).optional()),
+    videoUrl: z.string().url().max(255).optional(),
     order: z.preprocess((val) => (typeof val === "string" ? parseInt(val, 10) : val), z.number().int().min(1).max(100).optional()),
     isActive: z.preprocess((val) => (typeof val === "string" ? val === "true" : val), z.boolean().optional()),
   })
