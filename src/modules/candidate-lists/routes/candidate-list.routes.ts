@@ -29,17 +29,6 @@ candidateListAdminRouter.post(
     { name: "video", maxCount: 1 },
     { name: "image", maxCount: 1 },
   ]),
-  // Middleware d'injection manuelle AVANT la validation Zod
-  (req, res, next) => {
-    const files = req.files as any;
-    if (files?.video?.[0]) {
-      req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
-    }
-    if (files?.image?.[0]) {
-      req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
-    }
-    next();
-  },
   validateBody(createCandidateListSchema),
   (req, res, next) => controller.create(req, res, next),
 );
@@ -56,17 +45,6 @@ candidateListAdminRouter.patch(
     { name: "video", maxCount: 1 },
     { name: "image", maxCount: 1 },
   ]),
-  // Middleware d'injection manuelle AVANT la validation Zod
-  (req, res, next) => {
-    const files = req.files as any;
-    if (files?.video?.[0]) {
-      req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
-    }
-    if (files?.image?.[0]) {
-      req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
-    }
-    next();
-  },
   validateParams(candidateListIdParamSchema),
   validateBody(updateCandidateListSchema),
   (req, res, next) => controller.update(req, res, next),

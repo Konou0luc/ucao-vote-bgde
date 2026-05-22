@@ -18,13 +18,14 @@ export class CandidateListController {
     try {
       const files = req.files as any;
       
-      // L'injection se fait maintenant de manière plus robuste
       if (files?.video?.[0]) {
-        req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
+        const f = files.video[0];
+        req.body.videoUrl = f.path || f.secure_url || f.url;
       }
       
       if (files?.image?.[0]) {
-        req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
+        const f = files.image[0];
+        req.body.imageUrl = f.path || f.secure_url || f.url;
       }
       
       const payload = req.body as CreateCandidateListRequestDto;
@@ -49,11 +50,13 @@ export class CandidateListController {
       const files = req.files as any;
       
       if (files?.video?.[0]) {
-        req.body.videoUrl = files.video[0].path || files.video[0].secure_url;
+        const f = files.video[0];
+        req.body.videoUrl = f.path || f.secure_url || f.url;
       }
       
       if (files?.image?.[0]) {
-        req.body.imageUrl = files.image[0].path || files.image[0].secure_url;
+        const f = files.image[0];
+        req.body.imageUrl = f.path || f.secure_url || f.url;
       }
       
       const payload = req.body as UpdateCandidateListRequestDto;
