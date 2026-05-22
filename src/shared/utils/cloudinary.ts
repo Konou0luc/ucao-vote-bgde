@@ -14,39 +14,42 @@ cloudinary.config({
 // Configuration du stockage avec transformation automatique
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
-  params: async (_req: any, _file: any) => {
+  params: async (_req: any, file: any) => {
+    const isVideo = file.mimetype.startsWith("video/");
     return {
-      folder: "vote-gbde/videos",
-      resource_type: "video",
-      allowed_formats: ["mp4", "webm", "mov"],
-      // Transformation pour optimiser la vidéo :
-      // - bit_rate: "1m" limite le débit à 1 Mbps
-      // - width: 720 redimensionne en 720p max
-      // - crop: "limit" ne redimensionne que si c'est plus grand
-      // - quality: "auto" optimise automatiquement le poids
-      transformation: [
-        { width: 720, crop: "limit" },
-        { quality: "auto", bit_rate: "1m" },
-        { fetch_format: "mp4" }
-      ],
-      public_id: `video_${Date.now()}`,
+      folder: isVideo ? "vote-gbde/videos" : "vote-gbde/images",
+      resource_type: isVideo ? "video" : "image",
+      allowed_formats: isVideo ? ["mp4", "webm", "mov"] : ["jpg", "jpeg", "png", "webp"],
+      transformation: isVideo 
+        ? [
+            { width: 720, crop: "limit" },
+            { quality: "auto", bit_rate: "1m" },
+            { fetch_format: "mp4" }
+          ]
+        : [
+            { width: 1200, crop: "limit" },
+            { quality: "auto" }
+          ],
+      public_id: `${isVideo ? "video" : "image"}_${Date.now()}`,
     };
   },
 });
 
-// Filtre pour n'accepter que les vidéos
-const videoFilter = (req: any, file: any, cb: any) => {
-  if (file.mimetype.startsWith("video/")) {
+// Filtre pour n'accepter que les vidéos et images
+const mediaFilter = (req: any, file: any, cb: any) => {
+  if (file.mimetype.startsWith("video/") || file.mimetype.startsWith("image/")) {
     cb(null, true);
   } else {
-    cb(new AppError("Seuls les fichiers vidéo sont autorisés", 400), false);
+    cb(new AppError("Seuls les fichiers vidéo et image sont autorisés", 400), false);
   }
 };
 
-export const uploadVideo = multer({
+export const uploadMedia = multer({
   storage: storage,
-  fileFilter: videoFilter,
+  fileFilter: mediaFilter,
   limits: {
     fileSize: 50 * 1024 * 1024, // Limite à 50 Mo
   },
 });
+
+export const uploadVideo = uploadMedia;
