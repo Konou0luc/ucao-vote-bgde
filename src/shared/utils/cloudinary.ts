@@ -11,7 +11,7 @@ cloudinary.config({
   api_secret: env.CLOUDINARY_API_SECRET,
 });
 
-// Configuration du stockage avec transformation automatique
+// Configuration du stockage simplifié pour éviter les timeouts
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: async (_req: any, file: any) => {
@@ -20,16 +20,7 @@ const storage = new CloudinaryStorage({
       folder: isVideo ? "vote-gbde/videos" : "vote-gbde/images",
       resource_type: isVideo ? "video" : "image",
       allowed_formats: isVideo ? ["mp4", "webm", "mov"] : ["jpg", "jpeg", "png", "webp"],
-      transformation: isVideo 
-        ? [
-            { width: 720, crop: "limit" },
-            { quality: "auto", bit_rate: "1m" },
-            { fetch_format: "mp4" }
-          ]
-        : [
-            { width: 1200, crop: "limit" },
-            { quality: "auto" }
-          ],
+      // Suppression des transformations lourdes à l'upload pour éviter le pending
       public_id: `${isVideo ? "video" : "image"}_${Date.now()}`,
     };
   },
