@@ -25,7 +25,10 @@ candidateListAdminRouter.use(requireAuth);
 candidateListAdminRouter.post(
   "/admin/candidate-lists",
   requirePermissions("candidate-list:write"),
-  uploadMedia.fields([{ name: "video", maxCount: 1 }, { name: "image", maxCount: 1 }]),
+  uploadMedia.fields([
+    { name: "video", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+  ]),
   validateBody(createCandidateListSchema),
   (req, res, next) => controller.create(req, res, next),
 );
@@ -38,7 +41,10 @@ candidateListAdminRouter.get(
 candidateListAdminRouter.patch(
   "/admin/candidate-lists/:id",
   requirePermissions("candidate-list:write"),
-  uploadMedia.fields([{ name: "video", maxCount: 1 }, { name: "image", maxCount: 1 }]),
+  uploadMedia.fields([
+    { name: "video", maxCount: 1 },
+    { name: "image", maxCount: 1 },
+  ]),
   validateParams(candidateListIdParamSchema),
   validateBody(updateCandidateListSchema),
   (req, res, next) => controller.update(req, res, next),
