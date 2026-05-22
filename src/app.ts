@@ -11,6 +11,8 @@ import { voteRouter } from "./modules/votes/routes/vote.routes";
 import { authRouter } from "./modules/auth/routes/auth.routes";
 import { scrutinAdminRouter } from "./modules/scrutins/routes/scrutin.admin.routes";
 import { candidateListAdminRouter } from "./modules/candidate-lists/routes/candidate-list.routes";
+import { adminManagementRouter } from "./modules/admin-management/routes/admin-management.routes";
+import { auditRouter } from "./modules/audit/routes/audit.routes";
 import {
   adminRateLimiter,
   corsMiddleware,
@@ -101,6 +103,8 @@ app.use("/api", voteRouter);
 app.use("/api", authRouter);
 app.use("/api", scrutinAdminRouter);
 app.use("/api", candidateListAdminRouter);
+app.use("/api", adminManagementRouter);
+app.use("/api", auditRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

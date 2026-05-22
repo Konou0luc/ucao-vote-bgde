@@ -166,6 +166,7 @@ model Admin {
   email              String               @unique @db.VarChar(255)
   passwordHash       String               @db.VarChar(255)
   role               AdminRole            @default(STANDARD_ADMIN)
+  permissions        Json?                @default("[]")
   isActive           Boolean              @default(true)
   lastLoginAt        DateTime?
   createdAt          DateTime             @default(now())

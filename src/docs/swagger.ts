@@ -250,19 +250,12 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
     "/scrutin/{id}/results": {
       get: {
         tags: ["Scrutin"],
-        summary: "Resultats publics d'un scrutin",
-        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        summary: "Recuperer les resultats d un scrutin",
+        parameters: [
+          { name: "id", in: "path", required: true, schema: { type: "string" } },
+        ],
         responses: {
-          "200": {
-            description: "Resultats publies",
-            content: {
-              "application/json": {
-                schema: { $ref: "#/components/schemas/ScrutinResultsResponse" },
-              },
-            },
-          },
-          "403": { description: "Resultats non publies" },
-          "404": { description: "Scrutin introuvable" },
+          "200": { description: "Resultats du scrutin" },
         },
       },
     },
@@ -615,6 +608,32 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
               },
             },
           },
+        },
+      },
+    },
+    "/auth/change-password": {
+      post: {
+        tags: ["Auth"],
+        summary: "Changer le mot de passe",
+        security: [{ bearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["currentPassword", "newPassword"],
+                properties: {
+                  currentPassword: { type: "string" },
+                  newPassword: { type: "string", minLength: 8 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Mot de passe modifie" },
+          "401": { description: "Mot de passe actuel incorrect" },
         },
       },
     },

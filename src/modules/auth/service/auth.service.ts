@@ -24,20 +24,29 @@ import { AuthRepository } from "../repository/auth.repository";
 import { hashPassword, verifyPassword } from "../utils/password.util";
 import { TokenService } from "./token.service";
 
-function getRolePermissions(role: AdminRole): AuthPermission[] {
+function getRolePermissions(role: AdminRole, dbPermissions?: any): AuthPermission[] {
+  // If permissions are stored in DB and it's not a SUPER_ADMIN (who has everything anyway), use them
+  if (Array.isArray(dbPermissions) && dbPermissions.length > 0 && role !== "SUPER_ADMIN") {
+    return dbPermissions as AuthPermission[];
+  }
+
+  const commonPermissions: AuthPermission[] = [
+    "scrutin:read",
+    "candidate-list:read",
+    "dashboard:read",
+  ];
+
   if (role === "SUPER_ADMIN") {
     return [
-      "scrutin:read",
+      ...commonPermissions,
       "scrutin:write",
-      "candidate-list:read",
       "candidate-list:write",
       "results:publish",
-      "dashboard:read",
       "audit:read",
     ];
   }
 
-  return ["scrutin:read", "candidate-list:read", "dashboard:read"];
+  return commonPermissions;
 }
 
 export class AuthService {
@@ -167,7 +176,7 @@ export class AuthService {
       id: admin.id,
       email: admin.email,
       role: admin.role,
-      permissions: getRolePermissions(admin.role),
+      permissions: getRolePermissions(admin.role, admin.permissions),
     };
 
     const tokenPair = this.tokenService.createTokenPair(authAdmin);
@@ -200,55 +209,26 @@ export class AuthService {
     };
   }
 
-  async changePassword(adminId: string, payload: ChangePasswordRequestDto) {
-  const admin = await this.repository.findAdminById(adminId);
-  if (!admin) throw new AuthError("Admin introuvable", 404);
-
-  const isValid = await verifyPassword(payload.currentPassword, admin.passwordHash);
-  if (!isValid) throw new AuthError("Mot de passe actuel incorrect", 401);
-
-  const newHash = await hashPassword(payload.newPassword);
-  await this.repository.updateAdminPassword(adminId, newHash);
-
-  await this.repository.createAuditLog({
-    adminId,
-    action: "AUTH_PASSWORD_CHANGED",
-    entity: "Admin",
-    entityId: adminId,
-    severity: "INFO",
-  });
-}
-
   async refreshToken(payload: RefreshTokenRequestDto): Promise<AuthResponseDto> {
-    const refreshPayload = this.tokenService.verifyRefreshToken(payload.refreshToken);
-    const admin = await this.repository.findAdminById(refreshPayload.sub);
+    const decoded = this.tokenService.verifyRefreshToken(payload.refreshToken);
+    const admin = await this.repository.findAdminById(decoded.sub);
 
     if (!admin || !admin.isActive) {
-      throw new AuthError("Admin introuvable ou inactif", 401);
+      throw new AuthError("Session invalide ou compte inactif", 401);
     }
-
-    this.tokenService.revokeRefreshToken(payload.refreshToken);
 
     const authAdmin: AuthenticatedAdmin = {
       id: admin.id,
       email: admin.email,
       role: admin.role,
-      permissions: getRolePermissions(admin.role),
+      permissions: getRolePermissions(admin.role, admin.permissions),
     };
 
     const tokenPair = this.tokenService.createTokenPair(authAdmin);
 
-    await this.repository.createAuditLog({
-      adminId: admin.id,
-      action: "AUTH_REFRESH_SUCCESS",
-      entity: "Auth",
-      entityId: admin.id,
-      severity: "INFO",
-    });
-
     return {
       success: true,
-      message: "Token rafraichi avec succes",
+      message: "Token rafraichi",
       data: {
         accessToken: tokenPair.accessToken,
         refreshToken: tokenPair.refreshToken,
@@ -264,21 +244,44 @@ export class AuthService {
     };
   }
 
-  async logout(payload: LogoutRequestDto): Promise<{ success: true; message: string; data: {} }> {
-    const refreshPayload = this.tokenService.verifyRefreshToken(payload.refreshToken);
-    this.tokenService.revokeRefreshToken(payload.refreshToken);
+  async changePassword(adminId: string, payload: ChangePasswordRequestDto): Promise<void> {
+    const admin = await this.repository.findAdminById(adminId);
+    if (!admin) throw new AuthError("Admin introuvable", 404);
+
+    const isPasswordValid = await verifyPassword(payload.currentPassword, admin.passwordHash);
+    if (!isPasswordValid) throw new AuthError("Mot de passe actuel incorrect", 401);
+
+    const newPasswordHash = await hashPassword(payload.newPassword);
+    await this.repository.updateAdminPassword(adminId, newPasswordHash);
 
     await this.repository.createAuditLog({
-      adminId: refreshPayload.sub,
-      action: "AUTH_LOGOUT",
-      entity: "Auth",
-      entityId: refreshPayload.sub,
+      adminId,
+      action: "AUTH_CHANGE_PASSWORD",
+      entity: "Admin",
+      entityId: adminId,
       severity: "INFO",
     });
+  }
+
+  async logout(payload: LogoutRequestDto): Promise<{ success: true; message: string; data: {} }> {
+    // In a stateless JWT setup, logout is mainly handled by the client clearing the token.
+    // However, we can track it in audit logs.
+    try {
+      const decoded = this.tokenService.verifyRefreshToken(payload.refreshToken);
+      await this.repository.createAuditLog({
+        adminId: decoded.sub,
+        action: "AUTH_LOGOUT",
+        entity: "Auth",
+        entityId: decoded.sub,
+        severity: "INFO",
+      });
+    } catch (error) {
+      // Ignore errors during logout log
+    }
 
     return {
       success: true,
-      message: "Deconnexion effectuee",
+      message: "Deconnexion reussie",
       data: {},
     };
   }
