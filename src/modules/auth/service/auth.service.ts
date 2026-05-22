@@ -204,6 +204,7 @@ export class AuthService {
           email: authAdmin.email,
           role: authAdmin.role,
           permissions: authAdmin.permissions,
+          needsPasswordChange: (admin as any).needsPasswordChange,
         },
       },
     };
@@ -239,6 +240,7 @@ export class AuthService {
           email: authAdmin.email,
           role: authAdmin.role,
           permissions: authAdmin.permissions,
+          needsPasswordChange: (admin as any).needsPasswordChange,
         },
       },
     };

@@ -48,6 +48,7 @@ export interface AuthResponseDto {
       email: string;
       role: AdminRole;
       permissions: AuthPermission[];
+      needsPasswordChange: boolean;
     };
   };
 }

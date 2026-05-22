@@ -11,6 +11,7 @@ export class AdminManagementRepository {
         role: true,
         permissions: true,
         isActive: true,
+        needsPasswordChange: true,
         lastLoginAt: true,
         createdAt: true,
         updatedAt: true,
@@ -27,6 +28,7 @@ export class AdminManagementRepository {
         role: true,
         permissions: true,
         isActive: true,
+        needsPasswordChange: true,
         lastLoginAt: true,
         createdAt: true,
         updatedAt: true,
@@ -43,6 +45,7 @@ export class AdminManagementRepository {
     passwordHash: string;
     role: AdminRole;
     permissions: string[];
+    needsPasswordChange?: boolean;
   }) {
     return prisma.admin.create({
       data: {
@@ -50,6 +53,7 @@ export class AdminManagementRepository {
         passwordHash: data.passwordHash,
         role: data.role,
         permissions: data.permissions as any,
+        needsPasswordChange: data.needsPasswordChange ?? false,
       },
     });
   }
@@ -60,6 +64,7 @@ export class AdminManagementRepository {
     role: AdminRole;
     permissions: string[];
     isActive: boolean;
+    needsPasswordChange: boolean;
   }>) {
     return prisma.admin.update({
       where: { id },

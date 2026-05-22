@@ -141,6 +141,7 @@ model Admin {
   role               AdminRole           @default(STANDARD_ADMIN)
   permissions        Json?               @default("[]")
   isActive           Boolean             @default(true)
+  needsPasswordChange Boolean            @default(false)
   lastLoginAt        DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt

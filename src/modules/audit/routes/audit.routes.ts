@@ -14,3 +14,7 @@ export const auditRouter = Router();
 auditRouter.get("/admin/audit-logs", requireAuth, requirePermissions("audit:read"), (req, res, next) =>
   controller.list(req, res, next)
 );
+
+auditRouter.delete("/admin/audit-logs", requireAuth, requirePermissions("audit:read"), (req, res, next) =>
+  controller.purge(req, res, next)
+);

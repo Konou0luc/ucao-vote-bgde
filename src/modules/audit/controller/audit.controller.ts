@@ -12,4 +12,18 @@ export class AuditController {
       next(error);
     }
   }
+
+  async purge(req: Request, res: Response, next: NextFunction) {
+    try {
+      const { beforeDate } = req.query;
+      const result = await this.service.purgeLogs(beforeDate as string | undefined);
+      res.status(200).json({
+        success: true,
+        message: "Journal d'audit purgé avec succès",
+        data: { count: result.count },
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
 }

@@ -15,4 +15,18 @@ export class AuditRepository {
       take: 500, // Limit to last 500 logs for performance
     });
   }
+
+  async deleteAll() {
+    return prisma.auditLog.deleteMany({});
+  }
+
+  async deleteBefore(date: Date) {
+    return prisma.auditLog.deleteMany({
+      where: {
+        createdAt: {
+          lt: date,
+        },
+      },
+    });
+  }
 }
