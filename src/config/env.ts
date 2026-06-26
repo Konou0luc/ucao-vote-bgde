@@ -27,6 +27,8 @@ const envSchema = z.object({
   ADMIN_PASSWORD_HASH: z.string().min(1),
   SECOND_ADMIN_EMAIL: z.string().email().optional(),
   SECOND_ADMIN_PASSWORD_HASH: z.string().min(1).optional(),
+  THIRD_ADMIN_EMAIL: z.string().email().optional(),
+  THIRD_ADMIN_PASSWORD_HASH: z.string().min(1).optional(),
   CORS_ORIGIN: z.string().default("http://localhost:5173"),
   RATE_LIMIT_WINDOW_MS: z.coerce.number().int().positive().default(15 * 60 * 1000),
   RATE_LIMIT_MAX: z.coerce.number().int().positive().default(100),

@@ -37,6 +37,24 @@ async function main() {
     logger.info(`Second admin ${env.SECOND_ADMIN_EMAIL} upserted`);
   }
 
+  if (env.THIRD_ADMIN_EMAIL && env.THIRD_ADMIN_PASSWORD_HASH) {
+    await prisma.admin.upsert({
+      where: { email: env.THIRD_ADMIN_EMAIL },
+      update: {
+        passwordHash: env.THIRD_ADMIN_PASSWORD_HASH,
+        role: AdminRole.STANDARD_ADMIN,
+        isActive: true,
+      },
+      create: {
+        email: env.THIRD_ADMIN_EMAIL,
+        passwordHash: env.THIRD_ADMIN_PASSWORD_HASH,
+        role: AdminRole.STANDARD_ADMIN,
+        isActive: true,
+      },
+    });
+    logger.info(`Third admin ${env.THIRD_ADMIN_EMAIL} upserted`);
+  }
+
   await prisma.student.upsert({
     where: { matricule: "UCAO24A001" },
     update: {
