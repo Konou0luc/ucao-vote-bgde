@@ -102,12 +102,14 @@ app.use("/api", healthRouter);
 app.use("/api", scrutinRouter);
 app.use("/api", otpRouter);
 app.use("/api", voteRouter);
+// Routes publiques d'inscription : à monter AVANT les routeurs admin, qui exigent un jeton
+// pour toute requête qui les traverse (router.use(requireAuth)).
+app.use("/api", registrationRouter);
 app.use("/api", authRouter);
 app.use("/api", scrutinAdminRouter);
 app.use("/api", candidateListAdminRouter);
 app.use("/api", adminManagementRouter);
 app.use("/api", auditRouter);
-app.use("/api", registrationRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
