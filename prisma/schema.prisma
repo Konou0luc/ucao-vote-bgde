@@ -147,6 +147,29 @@ model OtpChallenge {
   @@map("otp_challenges")
 }
 
+/// Vérification de l'e-mail lors de l'auto-inscription d'un étudiant (avant création dans la base universitaire).
+model RegistrationChallenge {
+  id           String             @id @default(cuid())
+  matricule    String             @db.VarChar(32)
+  email        String             @db.VarChar(255)
+  /// Données du formulaire, transmises à l'API universitaire une fois l'e-mail vérifié
+  payload      Json
+  otpHash      String             @db.VarChar(255)
+  attempts     Int                @default(0)
+  maxAttempts  Int                @default(3)
+  status       OtpChallengeStatus @default(PENDING)
+  sessionToken String             @unique @db.VarChar(128)
+  expiresAt    DateTime
+  verifiedAt   DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+
+  @@index([matricule, createdAt])
+  @@index([email, createdAt])
+  @@index([sessionToken, expiresAt])
+  @@map("registration_challenges")
+}
+
 model Vote {
   id               String        @id @default(cuid())
   scrutinId        String

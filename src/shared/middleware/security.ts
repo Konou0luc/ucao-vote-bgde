@@ -68,6 +68,9 @@ export const otpVerifyRateLimiter: RequestHandler = createLimiter(env.RATE_LIMIT
   return sessionToken ? `otp-verify:${sessionToken}` : `otp-verify-ip:${ipKeyGenerator(req.ip || "")}`;
 });
 
+/** Inscription étudiante : limitée par adresse IP (même plafond que l'envoi d'OTP). */
+export const registrationRateLimiter: RequestHandler = createLimiter(env.RATE_LIMIT_OTP_SEND_MAX);
+
 export const voteRateLimiter: RequestHandler = createLimiter(env.RATE_LIMIT_VOTE_MAX);
 
 export const adminRateLimiter: RequestHandler = createLimiter(env.RATE_LIMIT_ADMIN_MAX);

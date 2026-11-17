@@ -13,6 +13,7 @@ import { scrutinAdminRouter } from "./modules/scrutins/routes/scrutin.admin.rout
 import { candidateListAdminRouter } from "./modules/candidate-lists/routes/candidate-list.routes";
 import { adminManagementRouter } from "./modules/admin-management/routes/admin-management.routes";
 import { auditRouter } from "./modules/audit/routes/audit.routes";
+import { registrationRouter } from "./modules/registrations/routes/registration.routes";
 import {
   adminRateLimiter,
   corsMiddleware,
@@ -93,6 +94,7 @@ app.use("/api/auth/login/verify", otpVerifyRateLimiter);
 app.use("/api/otp/send", otpSendRateLimiter);
 app.use("/api/otp/verify", otpVerifyRateLimiter);
 app.use("/api/vote", voteRateLimiter);
+app.use("/api/registration/options", publicReadRateLimiter);
 app.use("/api/auth", adminRateLimiter);
 app.use("/api/admin", adminRateLimiter);
 
@@ -105,6 +107,7 @@ app.use("/api", scrutinAdminRouter);
 app.use("/api", candidateListAdminRouter);
 app.use("/api", adminManagementRouter);
 app.use("/api", auditRouter);
+app.use("/api", registrationRouter);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

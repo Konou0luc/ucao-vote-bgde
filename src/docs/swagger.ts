@@ -157,6 +157,71 @@ export const swaggerDocument: OpenAPIV3_1.Document = {
       },
     },
 
+    "/registration/options": {
+      get: {
+        tags: ["Inscription"],
+        summary: "Instituts, filieres et annees pour le formulaire d'inscription",
+        description: "isOpen vaut false lorsqu'un vote est en cours (inscriptions fermees).",
+        responses: { "200": { description: "Options d'inscription" }, "503": { description: "API universitaire indisponible" } },
+      },
+    },
+    "/registration/start": {
+      post: {
+        tags: ["Inscription"],
+        summary: "Etape 1 : controler les donnees et envoyer un code a l'e-mail saisi",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["matricule", "firstName", "lastName", "email", "facultyCode", "departmentCode", "levelName"],
+                properties: {
+                  matricule: { type: "string", example: "UCAO26A001" },
+                  firstName: { type: "string", example: "Kossi" },
+                  lastName: { type: "string", example: "Agbeko" },
+                  email: { type: "string", format: "email" },
+                  facultyCode: { type: "string", example: "ISEG" },
+                  departmentCode: { type: "string", example: "MKT" },
+                  levelName: { type: "string", enum: ["L1", "L2", "L3"] },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          "200": { description: "Code envoye (sessionToken, emailMasked, expiresInMinutes)" },
+          "403": { description: "Inscriptions fermees : un vote est en cours" },
+          "409": { description: "Matricule ou e-mail deja inscrit" },
+          "422": { description: "Filiere ou annee inconnue" },
+          "429": { description: "Trop de demandes de code" },
+        },
+      },
+    },
+    "/registration/verify": {
+      post: {
+        tags: ["Inscription"],
+        summary: "Etape 2 : verifier le code et enregistrer l'etudiant (e-mail lie au matricule)",
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["sessionToken", "otp"],
+                properties: { sessionToken: { type: "string" }, otp: { type: "string", example: "123456" } },
+              },
+            },
+          },
+        },
+        responses: {
+          "201": { description: "Inscription enregistree" },
+          "401": { description: "Code incorrect" },
+          "410": { description: "Code expire" },
+          "423": { description: "Trop de tentatives" },
+        },
+      },
+    },
     "/otp/send": {
       post: {
         tags: ["OTP"],

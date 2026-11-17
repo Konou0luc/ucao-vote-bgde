@@ -45,6 +45,16 @@ export class OtpService {
       throw new AppError("Etudiant non trouve ou non autorise a voter", 404);
     }
 
+    // Anti-fraude : le matricule est lié à l'e-mail vérifié lors de l'inscription.
+    // Refus si l'e-mail saisi diffère (ou si aucun e-mail n'est connu) — sans révéler l'e-mail enregistré.
+    const registeredEmail = verifyResult.email?.trim().toLowerCase();
+    if (!registeredEmail || registeredEmail !== payload.email.trim().toLowerCase()) {
+      throw new AppError(
+        "Cet e-mail ne correspond pas a celui utilise lors de l'inscription de ce matricule",
+        403,
+      );
+    }
+
     await this.repository.upsertStudentShadow({
       matricule: verifyResult.matricule,
       firstName: verifyResult.firstName ?? "Inconnu",

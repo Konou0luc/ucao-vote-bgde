@@ -19,10 +19,18 @@ ok=$(curl -sS -H "x-api-key: $API_KEY" "$UCAO_URL/api/students/verify/UCAO24A001
 python3 -c 'import json,sys; j=json.loads(sys.argv[1]); assert j["success"] is True; assert j["data"]["exists"] is True' "$ok"
 
 log "VoteBGDE OTP send for valid matricule"
-otp_ok_code=$(curl -sS -o /tmp/vote-otp-ok.json -w "%{http_code}" -X POST "$VOTE_URL/api/otp/send" -H "Content-Type: application/json" -d '{"matricule":"UCAO24A001","email":"ama.kossi@ucao-uut.tg"}')
+otp_ok_code=$(curl -sS -o /tmp/vote-otp-ok.json -w "%{http_code}" -X POST "$VOTE_URL/api/otp/send" -H "Content-Type: application/json" -d '{"matricule":"UCAO24A001","email":"groupeflutter@gmail.com"}')
 if [[ "$otp_ok_code" != "200" && "$otp_ok_code" != "409" ]]; then
   echo "Expected 200 or 409 for valid matricule, got $otp_ok_code"
   cat /tmp/vote-otp-ok.json
+  exit 1
+fi
+
+log "VoteBGDE OTP send with an e-mail different from the registration (anti-fraude)"
+otp_mismatch_code=$(curl -sS -o /tmp/vote-otp-mismatch.json -w "%{http_code}" -X POST "$VOTE_URL/api/otp/send" -H "Content-Type: application/json" -d '{"matricule":"UCAO24A001","email":"someone.else@example.com"}')
+if [[ "$otp_mismatch_code" != "403" ]]; then
+  echo "Expected 403 for mismatched e-mail, got $otp_mismatch_code"
+  cat /tmp/vote-otp-mismatch.json
   exit 1
 fi
 
